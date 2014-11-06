@@ -1,0 +1,11 @@
+Importar branch "smendoza" del repo hadoop-extrae (http://vbqvm.pc.ac.upc.edu/redmine/projects/hadoopextrae/repository), té els últims canvis que va fer el sergio.
+
+Mirar el codi que hi ha a minerva-1:/scratch/hdd/yolandab/lightness en diferents arxius comprimits, tindria que ser el mateix que hi ha a la branch anterior.
+
+Incorporar els canvis de la branch "master" del repo hadoop-extrae (fent un rebase o un diff entre branches), ja que conté millores en la reorganització del projecte fetes pel David i el Nico (la branch npoggi ja està integrada a master).
+
+L'objectiu es tenir una màquina Vagrant dins d'un folder d'aquest repo que pugui aixecar un Hadoop ja configurat i llest per executar jobs amb el "extrae" afagant les mètriques.
+
+En el dropbox està la documentació a instrumentation/README_v4.docx 
+
+Projecte amb un Vagrant de referència: https://github.com/servioticy/servioticy-vagrant
