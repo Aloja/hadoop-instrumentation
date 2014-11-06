@@ -9,3 +9,5 @@ L'objectiu es tenir una màquina Vagrant dins d'un folder d'aquest repo que pugu
 En el dropbox està la documentació a instrumentation/README_v4.docx 
 
 Projecte amb un Vagrant de referència: https://github.com/servioticy/servioticy-vagrant
+
+Extrae i paraver disponible a: http://www.bsc.es/computer-sciences/performance-tools/downloads
