@@ -11,3 +11,11 @@ En el dropbox està la documentació a instrumentation/README_v4.docx
 Projecte amb un Vagrant de referència: https://github.com/servioticy/servioticy-vagrant
 
 Extrae i paraver disponible a: http://www.bsc.es/computer-sciences/performance-tools/downloads
+
+
+PARAVER (wxparaver)
+
+load traces -> dades (.prv)
+load conf .cfg -> vista concreta (amb filtres, etc...)
+.pcf -> events, codis d'events i semantiques
+.row -> igual que l'anterior pero dels threads
