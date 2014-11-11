@@ -8,6 +8,10 @@ aplic
 *.row
 *.swp
 
+# Vagrant #
+###########
+/vagrant/.vagrant
+
 # Compiled source #
 ###################
 *.com
