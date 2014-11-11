@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="84">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <df name="jni_java"
+        root="/home/smendoza/hadoopextrae/extrae/java_wrapper/jni_java">
+      <df name="es">
+        <df name="bsc">
+          <df name="tools">
+            <df name="extrae">
+            </df>
+            <df name="undef2prv">
+            </df>
+          </df>
+        </df>
+      </df>
+    </df>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>/home/smendoza/hadoopextrae/extrae/java_wrapper/jni_java/Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+  <sourceRootList>
+    <Elem>/home/smendoza/hadoopextrae/extrae/java_wrapper/jni_java</Elem>
+  </sourceRootList>
+  <projectmakefile>/home/smendoza/hadoopextrae/extrae/java_wrapper/jni_java/Makefile</projectmakefile>
+  <confs>
+    <conf name="Default" type="0">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
+      <makefileType>
+        <makeTool>
+          <buildCommandWorkingDir>/home/smendoza/hadoopextrae/extrae/java_wrapper/jni_java</buildCommandWorkingDir>
+          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
+          <executablePath></executablePath>
+        </makeTool>
+      </makefileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

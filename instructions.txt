@@ -1,0 +1,24 @@
+clone hadoop vanilla
+create inside the following symlinks:
+lrwxrwxrwx  1 dcarrera edragon      34 Jul  9 17:58 build.properties -> ../build.properties
+lrwxrwxrwx  1 dcarrera edragon      27 Jul  9 18:00 build.xml -> ../build.xml
+lrwxrwxrwx  1 dcarrera edragon      25 Jul  9 15:01 comp.sh -> ../comp.sh
+
+
+Create a link extraewrapper.jar in hadoop dist
+
+apply the following patch
+
+diff -uNr hadoop-1.0.3-vanilla/bin/hadoop hadoop-1.0.3/bin/hadoop
+--- hadoop-1.0.3-vanilla/bin/hadoop     2012-05-08 22:34:50.000000000 +0200
++++ hadoop-1.0.3/bin/hadoop     2013-07-09 19:45:19.000000000 +0200
+@@ -351,6 +351,8 @@
+   JAVA_LIBRARY_PATH=`cygpath -p "$JAVA_LIBRARY_PATH"`
+ fi
+
++JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$LD_LIBRARY_PATH
++
+ HADOOP_OPTS="$HADOOP_OPTS -Dhadoop.log.dir=$HADOOP_LOG_DIR"
+ HADOOP_OPTS="$HADOOP_OPTS -Dhadoop.log.file=$HADOOP_LOGFILE"
+ HADOOP_OPTS="$HADOOP_OPTS -Dhadoop.home.dir=$HADOOP_HOME"
+

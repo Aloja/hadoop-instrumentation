@@ -1,0 +1,293 @@
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java
+--- hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2013-08-13 10:20:21.000000000 +0200
+@@ -503,6 +503,9 @@
+     dnRegistration.setIpcPort(ipcServer.getListenerAddress().getPort());
+ 
+     LOG.info("dnRegistration = " + dnRegistration);
++
++    es.bsc.tools.extrae.IDManager.registerDatanode(conf);
++
+   }
+   
+   private ObjectName mxBean = null;
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java
+--- hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java	2013-08-13 10:23:04.000000000 +0200
+@@ -308,6 +308,8 @@
+       serviceRpcServer.start();      
+     }
+     startTrashEmptier(conf);
++
++    es.bsc.tools.extrae.IDManager.registerNamenode(conf);
+   }
+ 
+   private void startTrashEmptier(Configuration conf) throws IOException {
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/namenode/SecondaryNameNode.java hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/SecondaryNameNode.java
+--- hadoop-1.0.3-vanilla/src/hdfs/org/apache/hadoop/hdfs/server/namenode/SecondaryNameNode.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/SecondaryNameNode.java	2013-08-13 10:23:59.000000000 +0200
+@@ -234,6 +234,9 @@
+              "(" + checkpointPeriod/60 + " min)");
+     LOG.warn("Log Size Trigger    :" + checkpointSize + " bytes " +
+              "(" + checkpointSize/1024 + " KB)");
++
++    es.bsc.tools.extrae.IDManager.registerSecondaryNamenode(conf);
++
+   }
+ 
+   /**
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/Child.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Child.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/Child.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Child.java	2013-08-13 12:07:09.000000000 +0200
+@@ -243,6 +243,8 @@
+         for(Token<?> token : UserGroupInformation.getCurrentUser().getTokens()) {
+           childUGI.addToken(token);
+         }
++    	
++	es.bsc.tools.extrae.IDManager.registerTask(job, host+":"+port);
+         
+         // Create a final reference to the task for the doAs block
+         final Task taskFinal = task;
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/JobTracker.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobTracker.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/JobTracker.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobTracker.java	2013-08-13 10:21:28.000000000 +0200
+@@ -288,6 +288,7 @@
+   public static JobTracker startTracker(JobConf conf
+                                         ) throws IOException,
+                                                  InterruptedException {
++    es.bsc.tools.extrae.IDManager.registerJobTracker(conf);
+     return startTracker(conf, generateNewIdentifier());
+   }
+   
+@@ -3325,6 +3326,10 @@
+     // First check if the last heartbeat response got through
+     String trackerName = status.getTrackerName();
+     long now = clock.getTime();
++
++    es.bsc.tools.extrae.Events.GenerateReceiveEvent(es.bsc.tools.extrae.Events.Tags.HeartBeat, 0, es.bsc.tools.extrae.IDManager.getTaskTrackerID(status.getHost()), responseId);
++
++
+     if (restarted) {
+       faultyTrackers.markTrackerHealthy(status.getHost());
+     } else {
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/MapTask.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/MapTask.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/MapTask.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/MapTask.java	2013-08-13 11:39:01.000000000 +0200
+@@ -345,6 +345,7 @@
+     throws IOException, ClassNotFoundException, InterruptedException {
+     this.umbilical = umbilical;
+ 
++    //es.bsc.tools.extrae.IDManager.registerTask(job);
+     // start thread that will handle communication with parent
+     TaskReporter reporter = new TaskReporter(getProgress(), umbilical,
+         jvmContext);
+@@ -366,11 +367,13 @@
+       return;
+     }
+ 
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.RunMapper);
+     if (useNewApi) {
+       runNewMapper(job, splitMetaInfo, umbilical, reporter);
+     } else {
+       runOldMapper(job, splitMetaInfo, umbilical, reporter);
+     }
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.End);
+     done(umbilical, reporter);
+   }
+   @SuppressWarnings("unchecked")
+@@ -1281,6 +1284,9 @@
+ 
+     public synchronized void flush() throws IOException, ClassNotFoundException,
+                                             InterruptedException {
++
++      es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.Flush);
++
+       LOG.info("Starting flush of map output");
+       spillLock.lock();
+       try {
+@@ -1323,6 +1329,9 @@
+       mergeParts();
+       Path outputPath = mapOutputFile.getOutputFile();
+       fileOutputByteCounter.increment(rfs.getFileStatus(outputPath).getLen());
++      
++      es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.End);
++
+     }
+ 
+     public void close() { }
+@@ -1379,6 +1388,7 @@
+ 
+     private void sortAndSpill() throws IOException, ClassNotFoundException,
+                                        InterruptedException {
++      es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.SortAndSpill);
+       //approximate the length of the output file to be the length of the
+       //buffer + header lengths for the partitions
+       long size = (bufend >= bufstart
+@@ -1396,7 +1406,9 @@
+         final int endPosition = (kvend > kvstart)
+           ? kvend
+           : kvoffsets.length + kvend;
++	es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.Sort);
+         sorter.sort(MapOutputBuffer.this, kvstart, endPosition, reporter);
++	es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.End);
+         int spindex = kvstart;
+         IndexRecord rec = new IndexRecord();
+         InMemValBytes value = new InMemValBytes();
+@@ -1418,6 +1430,7 @@
+                           (kvindices[kvoff + VALSTART] - 
+                            kvindices[kvoff + KEYSTART]));
+                 writer.append(key, value);
++		es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.SpillRecordDumped);
+                 ++spindex;
+               }
+             } else {
+@@ -1433,7 +1446,9 @@
+                 combineCollector.setWriter(writer);
+                 RawKeyValueIterator kvIter =
+                   new MRResultIterator(spstart, spindex);
++		es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.Combine);
+                 combinerRunner.combine(kvIter, combineCollector);
++		es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.End);
+               }
+             }
+ 
+@@ -1452,12 +1467,15 @@
+           }
+         }
+ 
++	es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.TotalIndexCacheMemory);
+         if (totalIndexCacheMemory >= INDEX_CACHE_MEMORY_LIMIT) {
++	  es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.CreateSpillIndexFile);
+           // create spill index file
+           Path indexFilename =
+               mapOutputFile.getSpillIndexFileForWrite(numSpills, partitions
+                   * MAP_OUTPUT_INDEX_RECORD_LENGTH);
+           spillRec.writeToFile(indexFilename, job);
++	  es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.End);
+         } else {
+           indexCacheList.add(spillRec);
+           totalIndexCacheMemory +=
+@@ -1468,6 +1486,7 @@
+       } finally {
+         if (out != null) out.close();
+       }
++      es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.MapOutputBuffer, es.bsc.tools.extrae.Events.Values.End);
+     }
+ 
+     /**
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/ReduceTask.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/ReduceTask.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/ReduceTask.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/ReduceTask.java	2013-08-13 11:41:05.000000000 +0200
+@@ -347,6 +347,7 @@
+   @SuppressWarnings("unchecked")
+   public void run(JobConf job, final TaskUmbilicalProtocol umbilical)
+     throws IOException, InterruptedException, ClassNotFoundException {
++    //es.bsc.tools.extrae.IDManager.registerTask(job);
+     this.umbilical = umbilical;
+     job.setBoolean("mapred.skip.on", isSkipping());
+ 
+@@ -376,9 +377,11 @@
+       return;
+     }
+     
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.RunReducer);
+     // Initialize the codec
+     codec = initCodec();
+ 
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.ReducerCopyPhase);
+     boolean isLocal = "local".equals(job.get("mapred.job.tracker", "local"));
+     if (!isLocal) {
+       reduceCopier = new ReduceCopier(umbilical, job, reporter);
+@@ -391,7 +394,9 @@
+       }
+     }
+     copyPhase.complete();                         // copy is already complete
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.End);
+     setPhase(TaskStatus.Phase.SORT);
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.ReducerSortPhase);
+     statusUpdate(umbilical);
+ 
+     final FileSystem rfs = FileSystem.getLocal(job).getRaw();
+@@ -407,7 +412,9 @@
+     mapOutputFilesOnDisk.clear();
+     
+     sortPhase.complete();                         // sort is complete
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.End);
+     setPhase(TaskStatus.Phase.REDUCE); 
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.ReducerReducePhase);
+     statusUpdate(umbilical);
+     Class keyClass = job.getMapOutputKeyClass();
+     Class valueClass = job.getMapOutputValueClass();
+@@ -421,6 +428,8 @@
+                     keyClass, valueClass);
+     }
+     done(umbilical, reporter);
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.End);
++    es.bsc.tools.extrae.Events.GenerateEvent(es.bsc.tools.extrae.Events.Types.TaskTracker, es.bsc.tools.extrae.Events.Values.End);
+   }
+ 
+   private class OldTrackingRecordWriter<K, V> implements RecordWriter<K, V> {
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/Task.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Task.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/Task.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Task.java	2013-08-07 14:27:54.000000000 +0200
+@@ -192,6 +192,7 @@
+                                                     TaskStatus.Phase.SHUFFLE, 
+                                                   counters);
+     spilledRecordsCounter = counters.findCounter(Counter.SPILLED_RECORDS);
++    //es.bsc.tools.extrae.Wrapper.Init();
+   }
+ 
+   ////////////////////////////////////////////
+@@ -943,7 +944,11 @@
+       try {
+         Path mapOutput =  mapOutputFile.getOutputFile();
+         FileSystem localFS = FileSystem.getLocal(conf);
+-        return localFS.getFileStatus(mapOutput).getLen();
++	
++        long s = localFS.getFileStatus(mapOutput).getLen();
++	es.bsc.tools.extrae.Wrapper.Event(es.bsc.tools.extrae.Events.Types.MapTaskOutputSize, s);
++	return s;
++        //return localFS.getFileStatus(mapOutput).getLen();
+       } catch (IOException e) {
+         LOG.warn ("Could not find output size " , e);
+       }
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/TaskTracker.java hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/TaskTracker.java
+--- hadoop-1.0.3-vanilla/src/mapred/org/apache/hadoop/mapred/TaskTracker.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/TaskTracker.java	2013-08-13 10:20:51.000000000 +0200
+@@ -853,6 +853,8 @@
+     oobHeartbeatDamper = 
+       fConf.getInt(TT_OUTOFBAND_HEARTBEAT_DAMPER, 
+           DEFAULT_OOB_HEARTBEAT_DAMPER);
++
++    es.bsc.tools.extrae.IDManager.registerTaskTracker(fConf);
+   }
+ 
+   private void startJettyBugMonitor() {
+@@ -1507,6 +1509,7 @@
+         TaskLogsTruncater.DEFAULT_RETAIN_SIZE);
+     reduceRetainSize = conf.getLong(TaskLogsTruncater.REDUCE_USERLOG_RETAIN_SIZE,
+         TaskLogsTruncater.DEFAULT_RETAIN_SIZE);
++
+   }
+ 
+   private void checkJettyPort(int port) throws IOException { 
+@@ -1859,6 +1862,8 @@
+                                                               justInited,
+                                                               askForNewTask, 
+                                                               heartbeatResponseId);
++    
++    es.bsc.tools.extrae.Events.GenerateSendEvent(es.bsc.tools.extrae.Events.Tags.HeartBeat, 0, es.bsc.tools.extrae.IDManager.getJobTrackerID(), heartbeatResponseId);
+       
+     //
+     // The heartbeat got through successfully!
+@@ -3951,6 +3956,10 @@
+         }
+         final long endTime = ClientTraceLog.isInfoEnabled() ? System.nanoTime() : 0;
+         shuffleMetrics.serverHandlerFree();
++
++
++	// extrae here
++
+         if (ClientTraceLog.isInfoEnabled()) {
+           ClientTraceLog.info(String.format(MR_CLIENTTRACE_FORMAT,
+                 request.getLocalAddr() + ":" + request.getLocalPort(),

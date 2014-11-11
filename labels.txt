@@ -1,0 +1,31 @@
+EVENT_TYPE
+0 11111 TaskTracker
+VALUES
+0 End
+1 Start
+8 RunMapper
+9 RunReducer
+10 ReducerCopyPhase
+11 ReducerSortPhase
+12 ReducerReducePhase
+
+EVENT_TYPE
+0 22222 JobTracker
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 33333 MapOutputBuffer
+VALUES
+0 End
+1 Flush
+2 SortAndSpill
+3 Sort
+4 Combine
+5 CreateSpillIndexFile
+6 TotalIndexCacheMemory
+7 SpillRecordDumped
+
+EVENT_TYPE
+0 44444 MapTaskOutputSize

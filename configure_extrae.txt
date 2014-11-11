@@ -1,0 +1,4 @@
+To add files to the extrae structure, don't use aclocal againg (aclocal.m4 is already provided and is extensive).
+Just use automake and autoconf (in this order) and configure again
+
+./configure --prefix=/home/$USER/MS/extrae/dist --without-mpi --without-unwind --without-dyninst --without-papi

@@ -1,0 +1,21 @@
+Limitation: only 1 master node
+
+JobTracker Task 0
+NameNode Task 1
+SecondaryNameNode Task 2
+TaskTracker X (X order in slaves) -> 2 + X
+DataNode Y (Y order in slaves)
+
+
+JobTracker report: pccalvo:50001
+JobTracker HTTP UI: 0.0.0.0:50030
+Namenode service: pccalvo:50000
+Namenode UI HTTP: 0.0.0.0:50070
+Namenode UI HTTPS: 0.0.0.0:50470
+SecondaryNamenode HTTP: 0.0.0.0:50090
+TaskTracker report: localhost:40321 !!
+TaskTracker UI HTTP: 0.0.0.0:50060
+DataNode service: 0.0.0.0:50010
+DataNode IPC: 0.0.0.0:50020
+DataNode UI HTTP: 0.0.0.0:50075
+DataNode UI HTTPS: 0.0.0.0:50475

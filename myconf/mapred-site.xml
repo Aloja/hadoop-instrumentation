@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+
+<property>
+  <name>mapred.job.tracker</name>
+  <value>pccalvo:50001</value>
+  <description>The host and port that the MapReduce job tracker runs
+  at.  If "local", then jobs are run in-process as a single map
+  and reduce task.
+  </description>
+</property>
+
+<property>
+  <name>mapred.local.dir</name>
+  <value>${hadoop.tmp.dir}/mapred/local</value>
+  <description>The local directory where MapReduce stores intermediate
+  data files.  May be a comma-separated list of
+  directories on different devices in order to spread disk i/o.
+  Directories that do not exist are ignored.
+  </description>
+</property>
+<property>
+  <name>mapred.system.dir</name>
+  <value>${hadoop.tmp.dir}/mapred/system</value>
+  <description>The shared directory where MapReduce stores control files.
+  </description>
+</property>
+
+<property>
+  <name>mapred.temp.dir</name>
+  <value>${hadoop.tmp.dir}/mapred/temp</value>
+  <description>A shared directory for temporary files.
+  </description>
+</property>
+<property>
+  <name>mapred.reduce.tasks</name>
+  <value>1</value>
+  <description>The default number of reduce tasks per job. Typically set to 99%
+  of the cluster's reduce capacity, so that if a node fails the reduces can
+  still be executed in a single wave.
+  Ignored when mapred.job.tracker is "local".
+  </description>
+</property>
+
+<property>
+  <name>mapred.task.timeout</name>
+  <value>60000000</value>
+  <description>The number of milliseconds before a task will be
+  terminated if it neither reads an input, writes an output, nor
+  updates its status string.
+  </description>
+</property>
+<property>
+  <name>mapred.tasktracker.map.tasks.maximum</name>
+  <value>4</value>
+  <description>The maximum number of map tasks that will be run
+  simultaneously by a task tracker.
+  </description>
+</property>
+
+<property>
+  <name>mapred.tasktracker.reduce.tasks.maximum</name>
+  <value>1</value>
+  <description>The maximum number of reduce tasks that will be run
+  simultaneously by a task tracker.
+  </description>
+</property>
+<property>
+  <name>mapred.child.java.opts</name>
+  <value>-Xmx1024m -Xms1024m</value>
+  <description>Java opts for the task tracker child processes.
+  The following symbol, if present, will be interpolated: @taskid@ is replaced
+  by current TaskID. Any other occurrences of '@' will go unchanged.
+  For example, to enable verbose gc logging to a file named for the taskid in
+  /tmp and to set the heap maximum to be a gigabyte, pass a 'value' of:
+        -Xmx1024m -verbose:gc -Xloggc:/tmp/@taskid@.gc
+
+  The configuration variable mapred.child.ulimit can be used to control the
+  maximum virtual memory of the child processes.
+  </description>
+</property>
+
+<property>
+  <name>mapred.job.reuse.jvm.num.tasks</name>
+  <value>-1</value>
+  <description>How many tasks to run per jvm. If set to -1, there is
+  no limit.
+  </description>
+</property>
+
+</configuration>
