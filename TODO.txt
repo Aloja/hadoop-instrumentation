@@ -19,3 +19,12 @@ load traces -> dades (.prv)
 load conf .cfg -> vista concreta (amb filtres, etc...)
 .pcf -> events, codis d'events i semantiques
 .row -> igual que l'anterior pero dels threads
+
+echo "localhost" > hadoop-dist-dcarrera/conf/masters && echo "localhost" > hadoop-dist-dcarrera/conf/slaves
+
+Canviar JAVA_HOME de hadoop-dist-dcarrera/conf/hadoop-env.sh a:
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+
+Canviar fs.default.name a localhost i hadoop.tmp.dir de hadoop-dist-dcarrera/conf/core-site.xml
+
+Canviar mapred.job.tracker a localhost de hadoop-dist-dcarrera/conf/mapred-site.xml

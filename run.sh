@@ -1,12 +1,18 @@
-source ~/lightness/hadoopextrae/env-execution.sh
+#!/usr/bin/env bash
+set -o errexit  # Exit immediately on non-zero status
+set -o nounset  # Treat unset variables as an error
+set -o xtrace   # Debug mode: display the command and its expanded arguments
 
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
+
+# DEPRECATED
 #set capabilities en el cluster de minerva
-while read node
-do
-ssh $node <<ENDSSH
-sudo setcap_sniffer
-ENDSSH
-done < $HADOOP_PREFIX/conf/slaves
+#while read node
+#do
+#ssh $node <<ENDSSH
+#sudo setcap_sniffer
+#ENDSSH
+#done < $HADOOP_PREFIX/conf/slaves
 
 #Stopping Cluster DFS & MapRed
 $HADOOP_PREFIX/bin/stop-mapred.sh
