@@ -8,14 +8,14 @@ class { 'apt':
     purge_sources_list_d => true,
 }
 apt::source { 'ubuntu_trusty':
-    location          => 'mirror://mirrors.ubuntu.com/mirrors.txt',
+    location          => 'http://ftp.udc.es/ubuntu/',
     release           => 'trusty',
     repos             => 'main restricted universe',
     include_deb       => true,
     include_src       => false,
 }
 apt::source { 'ubuntu_trusty-updates':
-    location          => 'mirror://mirrors.ubuntu.com/mirrors.txt',
+    location          => 'http://ftp.udc.es/ubuntu/',
     release           => 'trusty-updates',
     repos             => 'main restricted universe',
     include_deb       => true,
