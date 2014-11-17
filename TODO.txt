@@ -20,11 +20,36 @@ load conf .cfg -> vista concreta (amb filtres, etc...)
 .pcf -> events, codis d'events i semantiques
 .row -> igual que l'anterior pero dels threads
 
+
+COMPILE
+-------
+patch -p1 < /home/vagrant/workspace/hadoop-src-changes.patch
+
+sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|<target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|' build.xml
+
+copy file extraewrapper.jar to hadoop/lib/
+(sembla que al repo microsoft/hadoopextrae aquest jar esta a la ruta hadoopextrae/extrae/java_wrapper/lib/extraewrapper.jar pero en el nou repo microsoft/instrumentation NO!)
+
+ant package
+(the alternative "ant binary" does not copy all files inside build dir, for example /conf)
+(the original command found was "ant -Dskip.contrib=true -Dskip.compile-mapred-classes=true package")
+
+
+RUN
+---
+
 echo "localhost" > hadoop-dist-dcarrera/conf/masters && echo "localhost" > hadoop-dist-dcarrera/conf/slaves
 
 Canviar JAVA_HOME de hadoop-dist-dcarrera/conf/hadoop-env.sh a:
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
 
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:25000</value>\n</property>|' core-site.xml
+
+
+FALTA RECOMPILAR EL extraewrapper.jar
+
+
+Ja no cal:
 Canviar fs.default.name a localhost i hadoop.tmp.dir de hadoop-dist-dcarrera/conf/core-site.xml
 
 Canviar mapred.job.tracker a localhost de hadoop-dist-dcarrera/conf/mapred-site.xml
