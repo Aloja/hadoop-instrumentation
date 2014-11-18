@@ -102,6 +102,12 @@ file { '/home/vagrant/workspace':
 }
 
 
+# Shell config
+file { '/home/vagrant/.bash_aliases':
+    source  => '/vagrant/files/bash_aliases',
+}
+
+
 # Configure passwordless SSH to localhost
 exec { 'ssh-keygen':
     user => 'vagrant',
