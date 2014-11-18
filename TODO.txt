@@ -30,7 +30,7 @@ sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs
 copy file extraewrapper.jar to hadoop/lib/
 (sembla que al repo microsoft/hadoopextrae aquest jar esta a la ruta hadoopextrae/extrae/java_wrapper/lib/extraewrapper.jar pero en el nou repo microsoft/instrumentation NO!)
 
-ant package
+ant -Dskip.compile-mapred-classes=true package
 (the alternative "ant binary" does not copy all files inside build dir, for example /conf)
 (the original command found was "ant -Dskip.contrib=true -Dskip.compile-mapred-classes=true package")
 
@@ -40,11 +40,23 @@ RUN
 
 echo "localhost" > hadoop-dist-dcarrera/conf/masters && echo "localhost" > hadoop-dist-dcarrera/conf/slaves
 
-Canviar JAVA_HOME de hadoop-dist-dcarrera/conf/hadoop-env.sh a:
-export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")@' hadoop-dist-dcarrera/conf/hadoop-env.sh
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:50000</value>\n</property>|' hadoop-dist-dcarrera/conf/core-site.xml
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>mapred.job.tracker</name>\n<value>localhost:50001</value>\n</property>\n<property>\n<name>mapred.tasktracker.map.tasks.maximum</name>\n<value>2</value>\n</property>\n<property>\n<name>mapred.tasktracker.reduce.tasks.maximum</name>\n<value>2</value>\n</property>|' hadoop-dist-dcarrera/conf/mapred-site.xml
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>dfs.replication</name>\n<value>1</value>\n</property>|' hadoop-dist-dcarrera/conf/hdfs-site.xml
 
-sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:25000</value>\n</property>|' core-site.xml
 
+export LD_LIBRARY_PATH=/home/vagrant/lib
+export JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$LD_LIBRARY_PATH
+patch -p1 < /home/vagrant/workspace/hadoop_vanilla_to_compile.patch
+
+libbfd-2.22-system.so: cannot open shared object file: No such file or directory
+possible workaround, es tindria que solucionar recompilant el extrae
+sudo cp /usr/lib/libbfd-2.24-system.so /usr/lib/libbfd-2.22-system.so
+
+
+./hadoop-dist-dcarrera/bin/start-all.sh
+./hadoop-dist-dcarrera/bin/stop-all.sh
 
 FALTA RECOMPILAR EL extraewrapper.jar
 
@@ -53,3 +65,57 @@ Ja no cal:
 Canviar fs.default.name a localhost i hadoop.tmp.dir de hadoop-dist-dcarrera/conf/core-site.xml
 
 Canviar mapred.job.tracker a localhost de hadoop-dist-dcarrera/conf/mapred-site.xml
+
+
+Workaround per utilitzar el extraewrapper.jar ja compilat:
+compilar hadoop amb java6 (no es pot compilar amb java7 per un error seu, a partir de la versió v1.1.0 ja es compatible)
+instalar java7
+canviar a java7 per defecte
+sudo update-alternatives --config java
+executar hadoop
+
+
+Error extraewrapper.jar precompilat, solucio: la configuracio de hadoop era incompleta (faltaven settings per posar)
+2014-11-18 14:14:03,166 FATAL org.apache.hadoop.mapred.JobTracker: java.lang.ArrayIndexOutOfBoundsException: 1
+        at es.bsc.tools.extrae.IDManager.digestConfiguration(IDManager.java:342)
+        at es.bsc.tools.extrae.IDManager.registerJobTracker(IDManager.java:155)
+        at org.apache.hadoop.mapred.JobTracker.startTracker(JobTracker.java:291)
+        at org.apache.hadoop.mapred.JobTracker.main(JobTracker.java:4983)
+
+
+Error falta llibreria seqtrace:
+2014-11-18 14:47:32,336 FATAL org.apache.hadoop.mapred.JobTracker: java.lang.UnsatisfiedLinkError: no seqtrace in java.library.path
+        at java.lang.ClassLoader.loadLibrary(ClassLoader.java:1886)
+        at java.lang.Runtime.loadLibrary0(Runtime.java:849)
+        at java.lang.System.loadLibrary(System.java:1088)
+        at es.bsc.tools.extrae.Wrapper.<clinit>(Wrapper.java:10)
+        at es.bsc.tools.extrae.IDManager.digestConfiguration(IDManager.java:413)
+        at es.bsc.tools.extrae.IDManager.registerJobTracker(IDManager.java:155)
+        at org.apache.hadoop.mapred.JobTracker.startTracker(JobTracker.java:291)
+        at org.apache.hadoop.mapred.JobTracker.main(JobTracker.java:4983)
+
+
+
+
+
+POST-PROCESS
+------------
+Aquest codi estava al final del run.sh en el backup del home del sergio:
+
+#Post-procesado aquíi tiempo que me ahorro
+bash post-process-dumpingd.sh 
+bash post-process-extrae-traces.sh 
+bash post-process-undef2prv.sh 
+
+
+
+HADOOP BUGS
+-----------
+ant target without source and docs
+https://issues.apache.org/jira/browse/HADOOP-2298
+
+make it possible to build hadoop tarballs without java5+ forrest
+https://issues.apache.org/jira/browse/HADOOP-8916
+
+Build fails with Java 7
+https://issues.apache.org/jira/browse/HADOOP-8329
