@@ -2,6 +2,34 @@
 Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
 
+# Run this before anything else
+stage { 'init':
+    before => Stage['main'],
+}
+class { 'prepare': 
+    stage => init,
+}
+
+class prepare {
+
+    # Prefer ipv4 over ipv6 for faster downloads
+    exec { 'prefer_ipv4':
+        command => 'echo "\nprecedence ::ffff:0:0/96  100" >> /etc/gai.conf',
+        unless => 'grep "^precedence ::ffff:0:0/96  100$" /etc/gai.conf',
+    }
+
+
+    # Configure apt to install less dependencies
+    file { 'apt-settings':
+        path => '/etc/apt/apt.conf.d/90localsettings',
+        source  => '/vagrant/files/apt-90localsettings',
+        owner => 'root',
+        group => 'root',
+    }
+
+}
+
+
 # Better apt mirrors
 class { 'apt':
     purge_sources_list   => true,
@@ -28,16 +56,6 @@ apt::source { 'ubuntu_trusty-security':
     include_deb       => true,
     include_src       => false,
 }
-
-
-# Configure apt to install less dependencies
-file { 'apt-settings':
-    path => '/etc/apt/apt.conf.d/90localsettings',
-    source  => '/vagrant/files/apt-90localsettings',
-    owner => 'root',
-    group => 'root',
-}
-File['apt-settings'] -> Package <| |>
 
 
 # Java
