@@ -7,7 +7,7 @@ libjextrae:
 #extraetest:
 #	gcc -I$(EXTRAEINC) -I$(JAVA_INCLUDE) -I$(JAVA_INCLUDE2) -I$(JNI_H_DEST) $(CFLAGS) test_extrae.c -o testextrae -L$(EXTRAELIBS) -l$(EXTRAELIB) -L$(PCAP_LIBS) -l$(PCAPLIB) -lpcap -lseqtrace
 sniffcmd:
-	gcc sniff_cmd.c -o /scratch/hdd/smendoza/bin/sniffer -I/home/smendoza/lightness/hadoopextrae/extrae/java_wrapper/jni_c/include -L/home/smendoza/lightness/lib -ljextrae -L/home/smendoza/lightness/hadoop-apps/extrae-2.5.1-dist/lib -lseqtrace -Wl,-rpath /home/smendoza/lightness/lib/ -Wl,-rpath /home/smendoza/lightness/hadoop-apps/extrae-2.5.1-dist/lib
+	gcc sniff_cmd.c -o $(BINDIR)/sniffer -I$(JNI_H_DEST) -L$(LIBDIR) -ljextrae -L$(EXTRAELIBS) -lseqtrace -Wl,-rpath $(LIBDIR)/ -Wl,-rpath $(EXTRAELIBS)
 
 clean:
 	#smendoza rm -f $(JNI_H_DEST)/*

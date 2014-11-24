@@ -21,42 +21,72 @@ load conf .cfg -> vista concreta (amb filtres, etc...)
 .row -> igual que l'anterior pero dels threads
 
 
-COMPILE
--------
-patch -p1 < /home/vagrant/workspace/hadoop-src-changes.patch
+COMPILE EXTRAEWRAPPER.JAR
+-------------------------
+Necessita java7 per compilar
+sudo update-alternatives --config java
 
-sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|<target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|' build.xml
+mkdir -p hadoop-src
+tar xf deps/hadoop-1.0.3.tar.gz --strip-components=1 -C hadoop-src
 
-copy file extraewrapper.jar to hadoop/lib/
-(sembla que al repo microsoft/hadoopextrae aquest jar esta a la ruta hadoopextrae/extrae/java_wrapper/lib/extraewrapper.jar pero en el nou repo microsoft/instrumentation NO!)
+mkdir -p deps/extrae
+tar xf deps/extrae-2.5.1.tar --strip-components=1 -C deps/extrae
+./configure --without-mpi --without-unwind --without-dyninst --without-papi
+NO HE CONSEGUIT COMPILAR EL EXTRAE, FER AIXO:
+Copiar /hadoopextrae/extrae/dist/* del backup a /deps/extrae/
+Copiar /hadoopextrae/extrae/extrae-2.3.4/src/tracer/.libs/* del backup a /lib/
 
-ant -Dskip.compile-mapred-classes=true package
+mkdir -p deps/libpcap
+tar xf deps/libpcap-1.4.0.tar.gz --strip-components=1 -C deps/libpcap
+
+make -C extrae/java_wrapper/
+
+
+COMPILE HADOOP
+--------------
+Necessita java6 per compilar
+sudo update-alternatives --config java
+
+mkdir -p hadoop-src
+tar xf deps/hadoop-1.0.3.tar.gz --strip-components=1 -C hadoop-src
+
+patch -d hadoop-src -p1 < hadoop-src-changes.patch
+patch -d hadoop-src -p1 < hadoop_vanilla_to_compile.patch
+
+sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|<target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|' hadoop-src/build.xml
+
+ln -s -f ../../lib/extraewrapper.jar hadoop-src/lib/extraewrapper.jar
+
+ant -buildfile hadoop-src/build.xml -Ddist.dir='/vagrant/workspace/hadoop-build' -Dskip.compile-mapred-classes=true package
+WARNING: change absolute path (/vagrant/workspace/hadoop-build) with BASE_DIR when creating definitive script
 (the alternative "ant binary" does not copy all files inside build dir, for example /conf)
 (the original command found was "ant -Dskip.contrib=true -Dskip.compile-mapred-classes=true package")
 
 
 RUN
 ---
+Necessita java7 per executar
+sudo update-alternatives --config java
 
-echo "localhost" > hadoop-dist-dcarrera/conf/masters && echo "localhost" > hadoop-dist-dcarrera/conf/slaves
+echo "localhost" > hadoop-build/conf/masters && echo "localhost" > hadoop-build/conf/slaves
 
-sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")@' hadoop-dist-dcarrera/conf/hadoop-env.sh
-sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:50000</value>\n</property>|' hadoop-dist-dcarrera/conf/core-site.xml
-sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>mapred.job.tracker</name>\n<value>localhost:50001</value>\n</property>\n<property>\n<name>mapred.tasktracker.map.tasks.maximum</name>\n<value>2</value>\n</property>\n<property>\n<name>mapred.tasktracker.reduce.tasks.maximum</name>\n<value>2</value>\n</property>|' hadoop-dist-dcarrera/conf/mapred-site.xml
-sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>dfs.replication</name>\n<value>1</value>\n</property>|' hadoop-dist-dcarrera/conf/hdfs-site.xml
+sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")@' hadoop-build/conf/hadoop-env.sh
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:50000</value>\n</property>|' hadoop-build/conf/core-site.xml
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>mapred.job.tracker</name>\n<value>localhost:50001</value>\n</property>\n<property>\n<name>mapred.tasktracker.map.tasks.maximum</name>\n<value>2</value>\n</property>\n<property>\n<name>mapred.tasktracker.reduce.tasks.maximum</name>\n<value>2</value>\n</property>|' hadoop-build/conf/mapred-site.xml
+sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>dfs.replication</name>\n<value>1</value>\n</property>|' hadoop-build/conf/hdfs-site.xml
 
 
-export LD_LIBRARY_PATH=/home/vagrant/lib
+export LD_LIBRARY_PATH=/vagrant/workspace/lib
 export JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$LD_LIBRARY_PATH
-patch -p1 < /home/vagrant/workspace/hadoop_vanilla_to_compile.patch
 
 libbfd-2.22-system.so: cannot open shared object file: No such file or directory
 possible workaround, es tindria que solucionar recompilant el extrae
 sudo cp /usr/lib/libbfd-2.24-system.so /usr/lib/libbfd-2.22-system.so
 
 
-./hadoop-dist-dcarrera/bin/start-all.sh
-./hadoop-dist-dcarrera/bin/stop-all.sh
+./hadoop-build/bin/hadoop namenode -format
+./hadoop-build/bin/start-all.sh
+./hadoop-build/bin/stop-all.sh
 
 FALTA RECOMPILAR EL extraewrapper.jar
 

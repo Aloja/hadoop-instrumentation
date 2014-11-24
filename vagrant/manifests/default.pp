@@ -84,7 +84,7 @@ package { ['ant']:
 
 
 # Install various packages
-Apt::Source <| |> -> package { ['build-essential', 'dh-autoreconf', 'git', 'less', 'screen', 'vim']:
+Apt::Source <| |> -> package { ['build-essential', 'dh-autoreconf', 'git', 'less', 'libpcap-dev', 'libxml2-dev', 'screen', 'vim']:
     ensure => installed,
 }
 

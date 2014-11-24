@@ -7,11 +7,11 @@ public class Wrapper
     static {
 
         //System.loadLibrary("pttrace");
-        //System.loadLibrary("seqtrace");
-        //System.loadLibrary("jextrae");
+        System.loadLibrary("seqtrace");
+        System.loadLibrary("jextrae");
         //System.load("/home/smendoza/lightness/hadoop-apps/libpcap-1.4.0-dist/lib/libpcap.so.1.4.0");
-        System.load("/home/smendoza/lightness/hadoop-apps/extrae-2.5.1-dist/lib/libseqtrace-2.5.1.so");
-        System.load("/home/smendoza/lightness/lib/libjextrae.so");        
+        //System.load("/home/smendoza/lightness/hadoop-apps/extrae-2.5.1-dist/lib/libseqtrace-2.5.1.so");
+        //System.load("/home/smendoza/lightness/lib/libjextrae.so");        
         //System.out.println("getEnv().keys="+System.getenv().keySet()+"\ngetenv().values="+System.getenv().values());
 	//System.out.println("Wrapper static");
 	//Init();
