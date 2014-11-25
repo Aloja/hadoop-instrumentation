@@ -44,23 +44,24 @@ File['apt-settings'] -> Package <| |>
 apt::ppa { 'ppa:webupd8team/java': }
 exec { 'set-licence-selected':
     command => 'echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections',
-    before => Package['oracle-java7-installer'],
+    before => Package['java'],
     subscribe => Apt::Ppa['ppa:webupd8team/java'],
     refreshonly => true,
 }
 exec { 'set-licence-seen':
     command => 'echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections',
-    before => Package['oracle-java7-installer'],
+    before => Package['java'],
     subscribe => Apt::Ppa['ppa:webupd8team/java'],
     refreshonly => true,
 }
-package { ['oracle-java7-installer']:
+package { ['java']:
+    name => 'oracle-java7-installer',
     ensure => installed,
     require => Apt::Ppa['ppa:webupd8team/java'],
 }
 package { ['ant']:
     ensure => installed,
-    require => Package['oracle-java7-installer'],
+    require => Package['java'],
 }
 
 
