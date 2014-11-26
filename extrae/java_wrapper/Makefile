@@ -4,6 +4,7 @@
 #LOG4J from env_extrae.sh
 
 BASE_DIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))/../../)
+export LOCAL_DIR=$(BASE_DIR)/local
 
 export HADOOP_PREFIX=$(BASE_DIR)/hadoop-src
 export LOG4J_HOME=/home/smendoza/lightness/hadoop-apps/apache-log4j-1.2.17
@@ -21,10 +22,10 @@ export JAVA_INCLUDE2=$(JAVA_HOME)/include
 
 # Some compiled binaries will be placed here
 # For example, the sniffer util from java_wrapper
-export BINDIR=$(BASE_DIR)/bin
+export BINDIR=$(LOCAL_DIR)/bin
 
 #destino de las libs de jni_c, deberia ser local
-export LIBDIR=$(BASE_DIR)/lib
+export LIBDIR=$(LOCAL_DIR)/lib
 #export LIBDIR=/scratch/hdd/smendoza/lightness/lib
 
 export LIB_PATH=$(LIBDIR)
@@ -41,8 +42,8 @@ export EXTRAE_ON=1
 export EXTRAE_DIR=/tmp/smendoza
 
 export EXTRAE_HOME=$(BASE_DIR)/deps/extrae
-export EXTRAELIBS=$(EXTRAE_HOME)/lib
-export EXTRAEINC=$(EXTRAE_HOME)/include
+export EXTRAELIBS=$(LIBDIR)
+export EXTRAEINC=$(LOCAL_DIR)/include
 #export EXTRAELIB=pttrace
 export EXTRAELIB=seqtrace
 export PCAPLIB=pcap
