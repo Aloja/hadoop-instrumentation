@@ -12,8 +12,8 @@ export LOG4J_HOME=$LNESS_HOME/hadoop-apps/apache-log4j-1.2.17
 export LOG4J_JAR=$LOG4J_HOME/log4j-1.2.17.jar
 export LOG4J_CONFFILE=$LNESS_HOME/hadoopextrae/log4j.undef2prv.properties
 export TMP_PPING=/tmp/smendoza
-export HADOOP_PREFIX=$LNESS_HOME/hadoop-dist-dcarrera
-export HADOOP_JAR_EXAMPLES=$HADOOP_PREFIX/hadoop-examples-*.jar
+export HADOOP_PREFIX="${BASE_DIR}/hadoop-build"
+export HADOOP_JAR_EXAMPLES="${HADOOP_PREFIX}/hadoop-examples-*.jar"
 
 export EXTRAE_HOME=$LNESS_HOME/hadoop-apps/extrae-2.5.1-dist
 

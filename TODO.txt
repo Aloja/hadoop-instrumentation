@@ -23,7 +23,7 @@ load conf .cfg -> vista concreta (amb filtres, etc...)
 
 COMPILE EXTRAEWRAPPER.JAR
 -------------------------
-Necessita java7 per compilar
+# Necessita java7 per compilar
 sudo update-alternatives --config java
 
 mkdir -p hadoop-src
@@ -47,10 +47,6 @@ tar xf deps/extrae-2.5.1.tar --strip-components=1 -C deps/extrae
 make -C deps/extrae/
 make -C deps/extrae/ install
 
-NO HE CONSEGUIT COMPILAR EL EXTRAE, FER AIXO:
-Copiar /hadoopextrae/extrae/dist/* del backup a /deps/extrae/
-Copiar /hadoopextrae/extrae/extrae-2.3.4/src/tracer/.libs/* del backup a /lib/
-
 mkdir -p deps/libpcap
 tar xf deps/libpcap-1.4.0.tar.gz --strip-components=1 -C deps/libpcap
 
@@ -59,7 +55,7 @@ make -C extrae/java_wrapper/
 
 COMPILE HADOOP
 --------------
-Necessita java6 per compilar
+# Necessita java6 per compilar, a partir de la versio v1.1.0 ja es pot compilar amb java7
 sudo update-alternatives --config java
 
 mkdir -p hadoop-src
@@ -73,51 +69,28 @@ sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs
 ln -s -f ../../local/lib/extraewrapper.jar hadoop-src/lib/extraewrapper.jar
 
 ant -buildfile hadoop-src/build.xml -Ddist.dir='/vagrant/workspace/hadoop-build' -Dskip.compile-mapred-classes=true package
-WARNING: change absolute path (/vagrant/workspace/hadoop-build) with BASE_DIR when creating definitive script
-(the alternative "ant binary" does not copy all files inside build dir, for example /conf)
-(the original command found was "ant -Dskip.contrib=true -Dskip.compile-mapred-classes=true package")
+# WARNING: change absolute path (/vagrant/workspace/hadoop-build) with BASE_DIR when creating definitive script
+# (the alternative "ant binary" does not copy all files inside build dir, for example /conf)
+# (the original command found was "ant -Dskip.contrib=true -Dskip.compile-mapred-classes=true package")
 
 
 RUN
 ---
-Necessita java7 per executar
+# Necessita java7 per executar
 sudo update-alternatives --config java
 
 echo "localhost" > hadoop-build/conf/masters && echo "localhost" > hadoop-build/conf/slaves
 
-sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")@' hadoop-build/conf/hadoop-env.sh
+sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")\n\nexport HADOOP_EXTRAE_LIBRARY_PATH="/vagrant/workspace/local/lib"\n\nexport EXTRAE_ON=1\nexport EXTRAE_DIR=/tmp\nexport EXTRAE_HOME=/vagrant/workspace/local@' hadoop-build/conf/hadoop-env.sh
 sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:50000</value>\n</property>|' hadoop-build/conf/core-site.xml
 sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>mapred.job.tracker</name>\n<value>localhost:50001</value>\n</property>\n<property>\n<name>mapred.tasktracker.map.tasks.maximum</name>\n<value>2</value>\n</property>\n<property>\n<name>mapred.tasktracker.reduce.tasks.maximum</name>\n<value>2</value>\n</property>|' hadoop-build/conf/mapred-site.xml
 sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>dfs.replication</name>\n<value>1</value>\n</property>|' hadoop-build/conf/hdfs-site.xml
-
-
-export LD_LIBRARY_PATH=/vagrant/workspace/local/lib
-export JAVA_LIBRARY_PATH=$JAVA_LIBRARY_PATH:$LD_LIBRARY_PATH
-
-libbfd-2.22-system.so: cannot open shared object file: No such file or directory
-possible workaround, es tindria que solucionar recompilant el extrae
-sudo cp /usr/lib/libbfd-2.24-system.so /usr/lib/libbfd-2.22-system.so
 
 
 ./hadoop-build/bin/hadoop namenode -format
 ./hadoop-build/bin/start-all.sh
 ./hadoop-build/bin/stop-all.sh
 
-FALTA RECOMPILAR EL extraewrapper.jar
-
-
-Ja no cal:
-Canviar fs.default.name a localhost i hadoop.tmp.dir de hadoop-dist-dcarrera/conf/core-site.xml
-
-Canviar mapred.job.tracker a localhost de hadoop-dist-dcarrera/conf/mapred-site.xml
-
-
-Workaround per utilitzar el extraewrapper.jar ja compilat:
-compilar hadoop amb java6 (no es pot compilar amb java7 per un error seu, a partir de la versió v1.1.0 ja es compatible)
-instalar java7
-canviar a java7 per defecte
-sudo update-alternatives --config java
-executar hadoop
 
 
 Error extraewrapper.jar precompilat, solucio: la configuracio de hadoop era incompleta (faltaven settings per posar)
