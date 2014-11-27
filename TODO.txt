@@ -79,7 +79,7 @@ RUN
 # Necessita java7 per executar
 sudo update-alternatives --config java
 
-echo "localhost" > hadoop-build/conf/masters && echo "localhost" > hadoop-build/conf/slaves
+echo "`hostname`" > hadoop-build/conf/masters && echo "`hostname`" > hadoop-build/conf/slaves
 
 sed -i'' 's@# export JAVA_HOME=/usr/lib/j2sdk1.5-sun@export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")\n\nexport HADOOP_EXTRAE_LIBRARY_PATH="/vagrant/workspace/local/lib"\n\nexport EXTRAE_ON=1\nexport EXTRAE_DIR=/tmp\nexport EXTRAE_HOME=/vagrant/workspace/local@' hadoop-build/conf/hadoop-env.sh
 sed -i'' 's|<configuration>|<configuration>\n\n<property>\n<name>fs.default.name</name>\n<value>hdfs://localhost:50000</value>\n</property>|' hadoop-build/conf/core-site.xml

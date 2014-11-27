@@ -122,9 +122,12 @@ exec { 'authorized_keys':
 }
 exec { 'known_hosts':
     user => 'vagrant',
-    command => 'ssh-keyscan -H localhost >> /home/vagrant/.ssh/known_hosts \
+    command => 'ssh-keyscan -H `hostname` >> /home/vagrant/.ssh/known_hosts \
+                && ssh-keyscan -H `ip -oneline -4 addr show eth0 | grep -Po "inet \K[\d.]+"` >> /home/vagrant/.ssh/known_hosts \
+                && ssh-keyscan -H `hostname`,`ip -oneline -4 addr show eth0 | grep -Po "inet \K[\d.]+"` >> /home/vagrant/.ssh/known_hosts \
+                && ssh-keyscan -H localhost >> /home/vagrant/.ssh/known_hosts \
                 && ssh-keyscan -H 127.0.0.1 >> /home/vagrant/.ssh/known_hosts \
                 && ssh-keyscan -H localhost,127.0.0.1 >> /home/vagrant/.ssh/known_hosts',
-    subscribe => Exec['ssh-keygen'],
-    refreshonly => true,
+    require => Exec['ssh-keygen'],
+    creates => '/home/vagrant/.ssh/known_hosts',
 }
