@@ -5,6 +5,9 @@ set -o xtrace   # Debug mode: display the command and its expanded arguments
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
 
+# Use java7 to run
+sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
+
 # DEPRECATED
 #set capabilities en el cluster de minerva
 #while read node
@@ -39,7 +42,7 @@ sleep 5
 echo "### STARTING HADOOP CLUSTER ###########################"
 #Iniciando Cluster DFS
 bin/start-dfs.sh
-sleep 20
+sleep 5
 
 #Moviendo datos al DFS...
 bin/hadoop fs -put conf input
@@ -47,7 +50,7 @@ sleep 5
 
 #Iniciando Cluster MapRed
 bin/start-mapred.sh
-sleep 25
+sleep 5
 
 echo "### EXECUTING OVER HADOOP CLUSTER #####################"
 #Exec Hadoop
