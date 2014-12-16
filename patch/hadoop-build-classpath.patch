@@ -1,0 +1,30 @@
+--- hadoop-1.0.3-vanilla/build.xml	2012-05-08 20:35:00.000000000 +0000
++++ hadoop-1.0.3/build.xml	2014-12-16 16:54:39.000000000 +0000
+@@ -328,10 +328,18 @@
+   <!-- the normal classpath -->
+   <path id="classpath">
+     <pathelement location="${build.classes}"/>
++    <path refid="extraewrapper.lib.classpath"/>
+     <path refid="src.lib.classpath"/>
+     <pathelement location="${conf.dir}"/>
+   </path>
+ 
++  <path id="extraewrapper.lib.classpath">
++    <fileset dir="${extraewrapper.lib.dir}" erroronmissingdir="false">
++      <include name="**/*.jar"/>
++      <exclude name="**/excluded/"/>
++    </fileset>
++  </path>
++
+   <path id="src.lib.classpath">
+     <fileset dir="${lib.dir}">
+       <include name="**/*.jar" />
+@@ -1494,7 +1502,7 @@
+   <!-- ================================================================== -->
+   <!--                                                                    -->
+   <!-- ================================================================== -->
+-  <target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"
++  <target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"
+ 	  description="assembles multi-platform artifacts for distribution">
+     <delete dir="${dist.dir}"/>
+     <mkdir dir="${dist.dir}"/>

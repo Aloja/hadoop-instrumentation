@@ -14,9 +14,9 @@ extraewrapper: hadoop-src binutils-bfd binutils-libiberty extrae deps/libpcap
 hadoop-src:
 	mkdir -p $(BASE_DIR)/hadoop-src
 	tar xf $(DEPS_DIR)/hadoop-1.0.3.tar.gz --strip-components=1 -C $(BASE_DIR)/hadoop-src
-	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/hadoop-src-changes.patch
-	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/hadoop_vanilla_to_compile.patch
-	sed -i'' 's|<target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|<target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"|' $(BASE_DIR)/hadoop-src/build.xml
+	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-extraewrapper-inject.patch
+	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-launch-classpath.patch
+	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-build-classpath.patch
 
 deps/binutils:
 	mkdir -p $(DEPS_DIR)/binutils
@@ -55,7 +55,7 @@ hadoop-build: hadoop-src
 	# Use java6 to compile hadoop (starting from hadoop v1.1.0 it can be compiled with java7, but not before)
 	# https://issues.apache.org/jira/browse/HADOOP-8329
 	sudo update-alternatives --set java /usr/lib/jvm/java-6-oracle/jre/bin/java
-	ant -buildfile hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.compile-mapred-classes=true package
+	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.compile-mapred-classes=true -Dextraewrapper.lib.dir='$(BASE_DIR)/local/lib/' package
 
 clean:
 	rm -rf $(DEPS_DIR)/binutils
