@@ -74,6 +74,7 @@ ant -buildfile hadoop-src/build.xml -Ddist.dir='/vagrant/workspace/hadoop-build'
 
 RUN
 ---
+# Clean: rm -rf /vagrant/workspace/hadoop-build/logs/* /tmp/hadoop-vagrant* /tmp/smendoza/ /tmp/smfile
 # Necessita java7 per executar
 sudo update-alternatives --config java
 

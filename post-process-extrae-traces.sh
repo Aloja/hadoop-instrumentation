@@ -1,4 +1,9 @@
-source env-postprocessing.sh
+#!/usr/bin/env bash
+set -o errexit  # Exit immediately on non-zero status
+set -o nounset  # Treat unset variables as an error
+set -o xtrace   # Debug mode: display the command and its expanded arguments
+
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
 
 #while read node
 #do
@@ -27,11 +32,11 @@ source env-postprocessing.sh
 #done < $HADOOP_PREFIX/conf/slaves
 
 #get extrae traces from hadoop nodes
-rm $TMP_PPING/distributed-merge/TRACE.mpits
+rm -f $TMP_PPING/distributed-merge/TRACE.mpits
 while read node
 do
 rm -rf $TMP_PPING/distributed-merge/$node
-mkdir $TMP_PPING/distributed-merge/$node
+mkdir -p $TMP_PPING/distributed-merge/$node
 scp -r $node:$TMP_PPING/set-* $TMP_PPING/distributed-merge/$node
 scp -r $node:$TMP_PPING/TRACE.mpits $TMP_PPING/distributed-merge/$node
 for f in $TMP_PPING/distributed-merge/$node/set-*/*mpit
@@ -47,7 +52,7 @@ head -n -1 $TMP_PPING/distributed-merge/TRACE.mpits.tmp > $TMP_PPING/distributed
 rm $TMP_PPING/distributed-merge/TRACE.mpits.tmp
 
 #Generacion de todos los mpits con el TRACE.mpits separados por apps
-$EXTRAE_HOME/bin/mpi2prv -syn -f $TMP_PPING/distributed-merge/TRACE.mpits -o $TMP_PPING/mergeoutput.prv
+${BIN_DIR}/mpi2prv -syn -f $TMP_PPING/distributed-merge/TRACE.mpits -o $TMP_PPING/mergeoutput.prv
 
 : '
 rm $TMP_PPING/distributed-merge/TRACE*.mpit

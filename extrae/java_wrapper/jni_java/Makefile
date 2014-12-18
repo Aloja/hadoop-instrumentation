@@ -15,6 +15,7 @@ extrae_jar: javah
 
 undef2prv_jar: undef2prv
 	$(JAR) cvf $(UNDEF2PRV_JAR) es/bsc/tools/undef2prv/*.class
+	cp libs/log4j-1.2.17.jar $(LIBDIR)
 
 clean:
 	rm -f es/bsc/tools/extrae/*.class
