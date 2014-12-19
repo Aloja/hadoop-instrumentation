@@ -1,6 +1,6 @@
 BASE_DIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))))
 DEPS_DIR := $(BASE_DIR)/deps
-LOCAL_DIR := $(BASE_DIR)/local
+LOCAL_DIR := $(HOME)/instrumentation
 
 .PHONY: all clean binutils-bfd binutils-libiberty extrae hadoop-build
 
@@ -55,7 +55,7 @@ hadoop-build: hadoop-src
 	# Use java6 to compile hadoop (starting from hadoop v1.1.0 it can be compiled with java7, but not before)
 	# https://issues.apache.org/jira/browse/HADOOP-8329
 	sudo update-alternatives --set java /usr/lib/jvm/java-6-oracle/jre/bin/java
-	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.compile-mapred-classes=true -Dextraewrapper.lib.dir='$(BASE_DIR)/local/lib/' package
+	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.compile-mapred-classes=true -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' package
 
 clean:
 	rm -rf $(DEPS_DIR)/binutils
@@ -63,8 +63,10 @@ clean:
 	rm -rf $(DEPS_DIR)/libpcap
 	rm -rf $(BASE_DIR)/hadoop-build
 	rm -rf $(BASE_DIR)/hadoop-src
-	rm -rf $(LOCAL_DIR)/bin
-	rm -rf $(LOCAL_DIR)/etc
-	rm -rf $(LOCAL_DIR)/include
-	rm -rf $(LOCAL_DIR)/lib
-	rm -rf $(LOCAL_DIR)/share
+	@echo
+	@echo Remember to delete the following folders to complelety remove the installation:
+	@echo $(LOCAL_DIR)/bin
+	@echo $(LOCAL_DIR)/etc
+	@echo $(LOCAL_DIR)/include
+	@echo $(LOCAL_DIR)/lib
+	@echo $(LOCAL_DIR)/share

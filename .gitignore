@@ -1,9 +1,6 @@
-/bin/
 /deps/extrae/
 /hadoop-build/
 /hadoop-src/
-/lib/
-/local/
 /vagrant/.vagrant
 
 # Compiled source #

@@ -4,7 +4,7 @@
 #LOG4J from env_extrae.sh
 
 BASE_DIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))/../../)
-export LOCAL_DIR=$(BASE_DIR)/local
+export LOCAL_DIR=$(HOME)/instrumentation
 
 export HADOOP_PREFIX=$(BASE_DIR)/hadoop-src
 export LOG4J_HOME=/home/smendoza/lightness/hadoop-apps/apache-log4j-1.2.17

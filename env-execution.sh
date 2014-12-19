@@ -3,7 +3,7 @@
 
 export BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-export LOCAL_DIR="${BASE_DIR}/local"
+export LOCAL_DIR="${HOME}/instrumentation"
 export BIN_DIR="${LOCAL_DIR}/bin"
 export LIB_DIR="${LOCAL_DIR}/lib"
 
