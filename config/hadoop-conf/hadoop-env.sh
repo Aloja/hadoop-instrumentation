@@ -14,6 +14,7 @@ export HADOOP_EXTRAE_LIBRARY_PATH="/vagrant/workspace/local/lib"
 export EXTRAE_ON=1
 export EXTRAE_DIR=/tmp/smendoza
 export EXTRAE_HOME=/vagrant/workspace/local
+export SNIFFER_BIN="${EXTRAE_HOME}/bin/sniffer"
 export SIESTA=500000
 
 # Extra Java CLASSPATH elements.  Optional.

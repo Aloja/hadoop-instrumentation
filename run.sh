@@ -5,6 +5,14 @@ set -o xtrace   # Debug mode: display the command and its expanded arguments
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
 
+# Check sniffer binary has the correct capabilities set
+if ! setcap -q -v cap_net_raw=eip "${SNIFFER_BIN}"; then
+    echo "Insuficient capabilities set in binary ${SNIFFER_BIN}"
+    echo "Please execute as root:"
+    echo "    sudo setcap cap_net_raw=eip ${SNIFFER_BIN}"
+    exit 1
+fi
+
 # Use java7 to run
 sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
 

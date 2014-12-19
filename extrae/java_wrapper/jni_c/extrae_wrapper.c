@@ -324,7 +324,8 @@ JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_StartSnifferLowLevel(JNI
 	 */
 
 	if (inbound){
-		strcpy(str_command, "/scratch/hdd/smendoza/bin/sniffer 1");
+		strcpy(str_command, getenv("SNIFFER_BIN"));
+		strcat(str_command, " 1");
 		for(;i<count;++i){
 			sprintf(port, " %d", portsArray[i]);
 			strncat(str_command,port,6);
@@ -338,7 +339,8 @@ JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_StartSnifferLowLevel(JNI
 		//sniffing(1, portsArray, count);
 	}
 	else {
-		strcpy(str_command, "/scratch/hdd/smendoza/bin/sniffer 0");
+		strcpy(str_command, getenv("SNIFFER_BIN"));
+		strcat(str_command, " 0");
 		for(;i<count;++i){
 			sprintf(port, " %d", portsArray[i]);
 			strncat(str_command,port,6);

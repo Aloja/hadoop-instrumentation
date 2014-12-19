@@ -2,9 +2,12 @@
 # EXPORTS USER FOR CONFIG FILES AND WHEN RAN AS ROOT
 
 export BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 export LOCAL_DIR="${BASE_DIR}/local"
 export BIN_DIR="${LOCAL_DIR}/bin"
 export LIB_DIR="${LOCAL_DIR}/lib"
+
+export SNIFFER_BIN="${BIN_DIR}/sniffer"
 
 export PCUSER=smendoza
 export LNESS_HOME=${BASE_DIR}
