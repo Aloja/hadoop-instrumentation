@@ -4,7 +4,7 @@ LOCAL_DIR := $(HOME)/instrumentation
 
 .PHONY: all clean binutils-bfd binutils-libiberty extrae hadoop-build
 
-all: extraewrapper
+all: extraewrapper hadoop-build
 
 extraewrapper: hadoop-src binutils-bfd binutils-libiberty extrae deps/libpcap
 	# Use java7 to compile (extraewrapper needs it)
