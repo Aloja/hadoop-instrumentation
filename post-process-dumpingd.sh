@@ -1,4 +1,9 @@
-source env-postprocessing.sh
+#!/usr/bin/env bash
+set -o errexit  # Exit immediately on non-zero status
+set -o nounset  # Treat unset variables as an error
+set -o xtrace   # Debug mode: display the command and its expanded arguments
+
+source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
 
 #############################################
 ### GET THE HADOOP NODES DUMPING's ##########
@@ -7,7 +12,6 @@ source env-postprocessing.sh
 while read node
 do
 ssh $node <<ENDSSH
-chown -R $PCUSER: $TMP_PPING/set-*
 mv $TMP_PPING/dumping-host-port-pid $TMP_PPING/dumping-host-port-pid.unfiltered
 cat $TMP_PPING/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep -v LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g' >> $TMP_PPING/dumping-host-port-pid
 cat $TMP_PPING/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g'  >> $TMP_PPING/dumping-host-port-pid
@@ -25,7 +29,7 @@ dumping_wala=$TMP_PPING/dumping.wala
 #Getting all the WALA from all the hadoop logs from all nodes
 while read node
 do
-ssh $PCUSER@$node <<ENDSSH
+ssh $node <<ENDSSH
 grep WALA $HADOOP_PREFIX/logs/* -R > $dumping_wala
 cat $dumping_wala | cut -d':' -f2,3,4 > $dumping_wala'.tmp'
 mv $dumping_wala'.tmp' $dumping_wala

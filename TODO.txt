@@ -120,6 +120,31 @@ bash post-process-extrae-traces.sh
 bash post-process-undef2prv.sh 
 
 
+El post-process-dumpingd.sh parseja tots els logs dels ports utilitzats en totes les maquines, i unifica el output resultant a $TMP_PPING/distributed-merge/dumping-host-port-pid
+
+El post-process-extrae-traces.sh parseja tots els arxius del extrae $TMP_PPING/set-* i $TMP_PPING/TRACE.mpits i unifica el output resultant a $TMP_PPING/distributed-merge/TRACE.mpits per despres utilitzar el mpi2prv per generar els arxius $TMP_PPING/mergeoutput.prv $TMP_PPING/mergeoutput.pcf $TMP_PPING/mergeoutput.row
+
+El post-process-undef2prv.sh parseja els arxius $TMP_PPING/distributed-merge/dumping-host-port-pid (generat per post-process-dumpingd.sh) $TMP_PPING/mergeoutput.prv $TMP_PPING/mergeoutput.row
+
+
+
+COSES PER FER DEL POST-PROCESS
+------------------------------
+
+El post-process-dumpingd.sh fa un grep de WALA en els logs de hadoop que no retorna cap resultat. Revisar a quines parts del codi es fa prints de WALA i veure si s'executen.
+
+El post-process-undef2prv.sh peta al no trobar l'arxiu /tmp/smendoza/jc.pid pero aquest no apareix referenciat a cap mes lloc del repositori. Potser significa JobClient?
+
+java.io.FileNotFoundException: /tmp/smendoza/jc.pid (No such file or directory)
+        at java.io.FileInputStream.open(Native Method)
+        at java.io.FileInputStream.<init>(FileInputStream.java:146)
+        at java.io.FileInputStream.<init>(FileInputStream.java:101)
+        at java.io.FileReader.<init>(FileReader.java:58)
+        at es.bsc.tools.undef2prv.DataOnMemory.loadJClient(DataOnMemory.java:401)
+        at es.bsc.tools.undef2prv.Undef2prv.main(Undef2prv.java:39)
+
+
+
 
 HADOOP BUGS
 -----------
