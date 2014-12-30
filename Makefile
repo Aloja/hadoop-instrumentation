@@ -55,7 +55,7 @@ hadoop-build: hadoop-src
 	# Use java6 to compile hadoop (starting from hadoop v1.1.0 it can be compiled with java7, but not before)
 	# https://issues.apache.org/jira/browse/HADOOP-8329
 	sudo update-alternatives --set java /usr/lib/jvm/java-6-oracle/jre/bin/java
-	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.compile-mapred-classes=true -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' package
+	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dskip.contrib=true -Dskip.compile-mapred-classes=true -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' package
 
 clean:
 	rm -rf $(DEPS_DIR)/binutils

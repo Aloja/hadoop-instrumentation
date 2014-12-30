@@ -20,6 +20,22 @@
   <value>2</value>
 </property>
 
+<property>
+  <name>hadoop.rpc.socket.factory.class.default</name>
+  <value>org.apache.hadoop.net.StandardSocketFactory</value>
+  <final>true</final>
+</property>
+
+<property>
+  <name>mapred.task.timeout</name>
+  <value>60000000</value>
+</property>
+
+<property>
+  <name>mapred.job.reuse.jvm.num.tasks</name>
+  <value>-1</value>
+</property>
+
 <!-- Change the Java HotSpot crash log directory to avoid hadoop cleaning it -->
 <!-- https://blogs.oracle.com/taylor22/entry/hadoop_java_error_logs -->
 <property>
