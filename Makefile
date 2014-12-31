@@ -22,17 +22,17 @@ deps/binutils:
 	mkdir -p $(DEPS_DIR)/binutils
 	tar xf $(DEPS_DIR)/binutils-2.23.tar.gz --strip-components=1 -C $(DEPS_DIR)/binutils
 
-deps/binutils/bfd/Makefile: deps/binutils
+deps/binutils/bfd/Makefile: | deps/binutils
 	( cd $(DEPS_DIR)/binutils/bfd/ ; ./configure --prefix=$(LOCAL_DIR)/ --enable-shared=yes )
 
-binutils-bfd: deps/binutils/bfd/Makefile
+binutils-bfd: | deps/binutils/bfd/Makefile
 	make -C $(DEPS_DIR)/binutils/bfd/
 	make -C $(DEPS_DIR)/binutils/bfd/ install
 
-deps/binutils/libiberty/Makefile: deps/binutils
+deps/binutils/libiberty/Makefile: | deps/binutils
 	( cd $(DEPS_DIR)/binutils/libiberty/ ; CFLAGS=-fPIC ./configure --prefix=$(LOCAL_DIR)/ )
 
-binutils-libiberty: deps/binutils/libiberty/Makefile
+binutils-libiberty: | deps/binutils/libiberty/Makefile
 	make -C $(DEPS_DIR)/binutils/libiberty/
 	make -C $(DEPS_DIR)/binutils/libiberty/ install
 
@@ -40,10 +40,10 @@ deps/extrae:
 	mkdir -p $(DEPS_DIR)/extrae
 	tar xf $(DEPS_DIR)/extrae-2.5.1.tar --strip-components=1 -C $(DEPS_DIR)/extrae
 
-deps/extrae/Makefile: deps/extrae
+deps/extrae/Makefile: | deps/extrae
 	( cd $(DEPS_DIR)/extrae/ ; ./configure --without-mpi --without-unwind --without-dyninst --without-papi --with-binutils=$(LOCAL_DIR) --prefix=$(LOCAL_DIR)/ )
 
-extrae: deps/extrae/Makefile
+extrae: | deps/extrae/Makefile
 	make -C $(DEPS_DIR)/extrae/
 	make -C $(DEPS_DIR)/extrae/ install
 
