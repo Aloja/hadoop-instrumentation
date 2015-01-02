@@ -7,7 +7,7 @@
 
 <property>
   <name>fs.default.name</name>
-  <value>hdfs://localhost:50000</value>
+  <value>hdfs://vagrant-ubuntu-trusty-64:50000</value>
 </property>
 
 </configuration>

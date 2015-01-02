@@ -7,7 +7,7 @@
 
 <property>
   <name>mapred.job.tracker</name>
-  <value>localhost:50001</value>
+  <value>vagrant-ubuntu-trusty-64:50001</value>
 </property>
 
 <property>
