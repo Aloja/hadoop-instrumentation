@@ -85,14 +85,21 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	values[7] = (extrae_value_t) pt.th_ack;
 	values[8] = (extrae_value_t) tcp->th_flags;
 
-	//printf("llego aqui sin problemas!");
-        
-        //Si es un loopback (ip dst == ip src), no hago nada
-        if (values[0] == values[2])
-            return;
+	//printf("llego aqui sin problemas! %s:%d (%lu) -> %s:%d (%lu)\n", inet_ntoa(pt.ip_src), values[1], ntohl(pt.ip_src.s_addr), inet_ntoa(pt.ip_dst), values[3], ntohl(pt.ip_dst.s_addr));fflush(stdout);
+
+	//Si es un loopback (ip dst == ip src), no hago nada
+	// Cuando hadoop se ejecuta en una sola maquina (mismo master & slave), la
+	// condicion anterior hacia que se ignorase todo el trafico (la ip siempre
+	// es la misma), por lo que se ha añadido la condicion que la ip sea
+	// 127.0.0.1 para ignorar este trafico
+	struct in_addr ip_localhost;
+	inet_aton("127.0.0.1", &ip_localhost);
+	if (values[0] == values[2] && pt.ip_src.s_addr == ip_localhost.s_addr) {
+		return;
+	}
 
 	//Generate state 
-	extrae_type_t types_antes[4] = {5050, 5051, 5052, 5053};
+	extrae_type_t types_antes[4] = {5050, 5051, 5052, 5053};  // Aquests events no estan descrits en el paraver
 	extrae_value_t values_antes[4]; // = {0,0,0,0};
 	values_antes[0] = (extrae_value_t) send;
 	values_antes[1] = values[0]; //(extrae_value_t) pt.ip_src.s_addr; //values[0];
