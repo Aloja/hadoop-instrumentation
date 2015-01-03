@@ -5,6 +5,9 @@ set -o xtrace   # Debug mode: display the command and its expanded arguments
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
 
+# Try to change permission
+sudo --non-interactive setcap cap_net_raw=eip ${SNIFFER_BIN} || true
+
 # Check sniffer binary has the correct capabilities set
 if ! setcap -q -v cap_net_raw=eip "${SNIFFER_BIN}"; then
     echo "Insuficient capabilities set in binary ${SNIFFER_BIN}"
@@ -15,6 +18,9 @@ fi
 
 # Use java7 to run
 sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
+
+# Copy hadoop config
+cp ${CONFIG_HADOOP}/* ${HADOOP_PREFIX}/conf/
 
 # DEPRECATED
 #set capabilities en el cluster de minerva
@@ -35,8 +41,10 @@ while read node
 do
 ssh $node <<ENDSSH
 rm -rf $TMP_PPING/*
-rm $HADOOP_PREFIX/hs_err_pid*.log
+rm -f $HADOOP_PREFIX/hs_err_pid*.log
 rm -rf $HADOOP_PREFIX/logs/*
+rm -rf /tmp/hadoop-vagrant*
+rm -f /tmp/smfile
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 

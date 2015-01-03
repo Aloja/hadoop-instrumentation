@@ -7,6 +7,9 @@ export LOCAL_DIR="${HOME}/instrumentation"
 export BIN_DIR="${LOCAL_DIR}/bin"
 export LIB_DIR="${LOCAL_DIR}/lib"
 
+export CONFIG_DIR="${BASE_DIR}/config"
+export CONFIG_HADOOP="${CONFIG_DIR}/hadoop-conf"
+
 export SNIFFER_BIN="${BIN_DIR}/sniffer"
 
 export PCUSER=smendoza
