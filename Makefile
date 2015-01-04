@@ -67,10 +67,17 @@ clean:
 	rm -rf $(DEPS_DIR)/libpcap
 	rm -rf $(BASE_DIR)/hadoop-build
 	rm -rf $(BASE_DIR)/hadoop-src
+
 	@echo
-	@echo Remember to delete the following folders to complelety remove the installation:
-	@echo $(LOCAL_DIR)/bin
-	@echo $(LOCAL_DIR)/etc
-	@echo $(LOCAL_DIR)/include
-	@echo $(LOCAL_DIR)/lib
-	@echo $(LOCAL_DIR)/share
+	@if [ ! -d "$(LOCAL_DIR)/bin" -a ! -d "$(LOCAL_DIR)/etc" -a ! -d "$(LOCAL_DIR)/include" -a ! -d "$(LOCAL_DIR)/lib" -a ! -d "$(LOCAL_DIR)/share" ]; then \
+		echo "All clean!"; \
+	fi
+
+	@if [ -d "$(LOCAL_DIR)/bin" -o -d "$(LOCAL_DIR)/etc" -o -d "$(LOCAL_DIR)/include" -o -d "$(LOCAL_DIR)/lib" -o -d "$(LOCAL_DIR)/share" ]; then \
+		echo "Remember to delete the following folders to complelety remove the installation:"; \
+		if [ -d "$(LOCAL_DIR)/bin" ]; then echo "$(LOCAL_DIR)/bin"; fi; \
+		if [ -d "$(LOCAL_DIR)/etc" ]; then echo "$(LOCAL_DIR)/etc"; fi; \
+		if [ -d "$(LOCAL_DIR)/include" ]; then echo "$(LOCAL_DIR)/include"; fi; \
+		if [ -d "$(LOCAL_DIR)/lib" ]; then echo "$(LOCAL_DIR)/lib"; fi; \
+		if [ -d "$(LOCAL_DIR)/share" ]; then echo "$(LOCAL_DIR)/share"; fi; \
+	fi
