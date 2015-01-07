@@ -7,8 +7,6 @@ LOCAL_DIR := $(HOME)/instrumentation
 all: extraewrapper hadoop-build
 
 extraewrapper: hadoop-src | deps/binutils deps/libpcap deps/extrae
-    # Use java7 to compile (extraewrapper needs it)
-	sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
 	make -C $(BASE_DIR)/extrae/java_wrapper/
 
 hadoop-src:
@@ -17,6 +15,10 @@ hadoop-src:
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-extraewrapper-inject.patch
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-launch-classpath.patch
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-build-classpath.patch
+    # Only needed because hadoop 1.0.3 has a syntax error and doesn't compile with java7
+    # Starting from hadoop v1.1.0 it can be compiled with java7, this patch is the fix backported
+    # https://issues.apache.org/jira/browse/HADOOP-8329
+	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p0 < $(BASE_DIR)/patch/hadoop-compile-java7.patch
 
 deps/binutils:
 	mkdir -p $(DEPS_DIR)/binutils
@@ -44,13 +46,6 @@ deps/libpcap:
 	tar xf $(DEPS_DIR)/libpcap-1.4.0.tar.gz --strip-components=1 -C $(DEPS_DIR)/libpcap
 
 hadoop-build: hadoop-src
-    # Use java6 to compile hadoop (starting from hadoop v1.1.0 it can be compiled with java7, but not before)
-    # https://issues.apache.org/jira/browse/HADOOP-8329
-	sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
-	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.compile-mapred-classes=true compile-core
-	sudo update-alternatives --set java /usr/lib/jvm/java-6-oracle/jre/bin/java
-	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.compile-mapred-classes=true compile-contrib
-	sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
 	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.compile-mapred-classes=true package
 
 clean:
