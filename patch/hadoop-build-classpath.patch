@@ -24,7 +24,36 @@
    <!--                                                                    -->
    <!-- ================================================================== -->
 -  <target name="package" depends="compile, jar, javadoc, docs, cn-docs, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"
-+  <target name="package" depends="compile, jar, javadoc, api-report, examples, tools-jar, jar-test, ant-tasks, package-librecordio"
++  <target name="package" depends="compile, jar, examples, tools-jar, ant-tasks, package-librecordio"
  	  description="assembles multi-platform artifacts for distribution">
      <delete dir="${dist.dir}"/>
      <mkdir dir="${dist.dir}"/>
+@@ -1533,13 +1541,15 @@
+ 	  <arg line="${native.src.dir}/packageNativeHadoop.sh"/>
+     </exec>
+ 
++    <!--
+     <subant target="package">
+-      <!--Pass down the version in case its needed again and the target
+-      distribution directory so contribs know where to install to.-->
++      <!- -Pass down the version in case its needed again and the target
++      distribution directory so contribs know where to install to.- ->
+       <property name="version" value="${version}"/>
+       <property name="dist.dir" value="${dist.dir}"/>
+       <fileset file="${contrib.dir}/build.xml"/>
+     </subant>  	
++    -->
+ 
+     <copy todir="${dist.dir}/webapps">
+       <fileset dir="${build.webapps}"/>
+@@ -1563,10 +1573,6 @@
+       <fileset dir="${conf.dir}" excludes="**/*.template"/>
+     </copy>
+ 
+-    <copy todir="${dist.dir}/docs">
+-      <fileset dir="${build.docs}"/>
+-    </copy>
+-
+     <copy file="ivy.xml" tofile="${dist.dir}/ivy.xml"/>
+ 
+     <copy todir="${dist.dir}/ivy">

@@ -46,7 +46,7 @@ deps/libpcap:
 	tar xf $(DEPS_DIR)/libpcap-1.4.0.tar.gz --strip-components=1 -C $(DEPS_DIR)/libpcap
 
 hadoop-build: hadoop-src
-	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.compile-mapred-classes=true package
+	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.contrib=true -Dskip.compile-mapred-classes=true package
 
 clean:
 	rm -rf $(DEPS_DIR)/binutils
