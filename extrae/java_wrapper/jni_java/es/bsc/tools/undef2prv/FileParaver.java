@@ -382,7 +382,7 @@ public class FileParaver {
             int commcounter = 0, commok = 0, commwnull = 0;
             int ercounter = 0;
             int nullcounter = 0;
-            String outputFile = this.filePath.replace(".", "-") + "-out.prv";
+            String outputFile = this.filePath.replace(".prv", "-out.prv");
             PrintWriter filepw = new PrintWriter(outputFile);
 
             //First the prv header

@@ -1,5 +1,7 @@
 package es.bsc.tools.undef2prv;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
@@ -22,6 +24,7 @@ public class Undef2prv {
         String fileDumpfile = args[0]; // dumping-host-port-pid file
         String filePrv = args[1]; // *.prv file
         String fileRow = args[2]; // *.row file
+        String filePcf = args[3]; // *.pcf file
 
         //log4j conf file
         String confFile;
@@ -60,6 +63,9 @@ public class Undef2prv {
 
             // .row conversion
             FileParaverRow.Conversion(fileRow);
+
+            // .pcf conversion (only copy for now)
+            Files.copy(Paths.get(filePcf), Paths.get(filePcf.replace(".pcf", "-out.pcf")), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
             //<debugging-ports>
             System.out.println(CPort.printheader);

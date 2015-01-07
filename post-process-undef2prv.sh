@@ -24,5 +24,5 @@ cd $LNESS_HOME/hadoopextrae
 
 #execute the undef2prv post-processing
 #procesa els ports i els genera al output
-${JAVA} -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TMP_PPING/distributed-merge/dumping-host-port-pid $TMP_PPING/mergeoutput.prv $TMP_PPING/mergeoutput.row
+${JAVA} -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TMP_PPING/distributed-merge/dumping-host-port-pid $TMP_PPING/mergeoutput.prv $TMP_PPING/mergeoutput.row $TMP_PPING/mergeoutput.pcf
 

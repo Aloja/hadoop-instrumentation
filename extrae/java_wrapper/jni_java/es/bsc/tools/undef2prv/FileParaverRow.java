@@ -28,7 +28,7 @@ public class FileParaverRow {
     public static void Conversion(String fPath) {
 
         try {
-            String outputPath = fPath.replace(".", "-") + "-out.row";
+            String outputPath = fPath.replace(".row", "-out.row");
             BufferedReader reader = new BufferedReader(new FileReader(fPath));
             BufferedWriter buffwrttr = new BufferedWriter(new FileWriter(outputPath));
 
