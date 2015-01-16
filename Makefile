@@ -6,7 +6,7 @@ LOCAL_DIR := $(HOME)/instrumentation
 
 all: extraewrapper hadoop-build
 
-extraewrapper: hadoop-src | deps/libpcap deps/extrae
+extraewrapper: hadoop-src | deps/extrae
 	make -C $(BASE_DIR)/extrae/java_wrapper/
 
 hadoop-src:
@@ -27,16 +27,11 @@ deps/extrae:
 	make -C $(DEPS_DIR)/extrae/
 	make -C $(DEPS_DIR)/extrae/ install
 
-deps/libpcap:
-	mkdir -p $(DEPS_DIR)/libpcap
-	tar xf $(DEPS_DIR)/libpcap-1.4.0.tar.gz --strip-components=1 -C $(DEPS_DIR)/libpcap
-
 hadoop-build: hadoop-src
 	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.contrib=true -Dskip.compile-mapred-classes=true package
 
 clean:
 	rm -rf $(DEPS_DIR)/extrae
-	rm -rf $(DEPS_DIR)/libpcap
 	rm -rf $(BASE_DIR)/hadoop-build
 	rm -rf $(BASE_DIR)/hadoop-src
 
