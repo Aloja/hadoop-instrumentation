@@ -6,7 +6,7 @@ LOCAL_DIR := $(HOME)/instrumentation
 
 all: extraewrapper hadoop-build
 
-extraewrapper: hadoop-src | deps/binutils deps/libpcap deps/extrae
+extraewrapper: hadoop-src | deps/libpcap deps/extrae
 	make -C $(BASE_DIR)/extrae/java_wrapper/
 
 hadoop-src:
@@ -20,24 +20,10 @@ hadoop-src:
     # https://issues.apache.org/jira/browse/HADOOP-8329
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p0 < $(BASE_DIR)/patch/hadoop-compile-java7.patch
 
-deps/binutils:
-	mkdir -p $(DEPS_DIR)/binutils
-	tar xf $(DEPS_DIR)/binutils-2.23.tar.gz --strip-components=1 -C $(DEPS_DIR)/binutils
-
-    # bfd
-	( cd $(DEPS_DIR)/binutils/bfd/ ; ./configure --prefix=$(LOCAL_DIR)/ --enable-shared=yes )
-	make -C $(DEPS_DIR)/binutils/bfd/
-	make -C $(DEPS_DIR)/binutils/bfd/ install
-
-    # libiberty
-	( cd $(DEPS_DIR)/binutils/libiberty/ ; CFLAGS=-fPIC ./configure --prefix=$(LOCAL_DIR)/ )
-	make -C $(DEPS_DIR)/binutils/libiberty/
-	make -C $(DEPS_DIR)/binutils/libiberty/ install
-
 deps/extrae:
 	mkdir -p $(DEPS_DIR)/extrae
-	tar xf $(DEPS_DIR)/extrae-2.5.1.tar --strip-components=1 -C $(DEPS_DIR)/extrae
-	( cd $(DEPS_DIR)/extrae/ ; ./configure --without-mpi --without-unwind --without-dyninst --without-papi --with-binutils=$(LOCAL_DIR) --prefix=$(LOCAL_DIR)/ )
+	tar xf $(DEPS_DIR)/extrae-3.0.1.tar.bz2 --strip-components=1 -C $(DEPS_DIR)/extrae
+	( cd $(DEPS_DIR)/extrae/ ; ./configure --without-mpi --without-unwind --without-dyninst --without-papi --prefix=$(LOCAL_DIR)/ )
 	make -C $(DEPS_DIR)/extrae/
 	make -C $(DEPS_DIR)/extrae/ install
 
@@ -49,7 +35,6 @@ hadoop-build: hadoop-src
 	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.contrib=true -Dskip.compile-mapred-classes=true package
 
 clean:
-	rm -rf $(DEPS_DIR)/binutils
 	rm -rf $(DEPS_DIR)/extrae
 	rm -rf $(DEPS_DIR)/libpcap
 	rm -rf $(BASE_DIR)/hadoop-build
