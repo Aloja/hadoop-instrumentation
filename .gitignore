@@ -1,4 +1,5 @@
 /deps/extrae/
+/deps/hadoop-1.0.3.tar.gz
 /hadoop-build/
 /hadoop-src/
 /vagrant/.vagrant

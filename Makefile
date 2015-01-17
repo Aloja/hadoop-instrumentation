@@ -9,7 +9,10 @@ all: extraewrapper hadoop-build
 extraewrapper: hadoop-src | deps/extrae
 	make -C $(BASE_DIR)/extrae/java_wrapper/
 
-hadoop-src:
+deps/hadoop-1.0.3.tar.gz:
+	curl -L --fail --progress-bar -o $(DEPS_DIR)/hadoop-1.0.3.tar.gz 'https://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/hadoop-1.0.3.tar.gz'
+
+hadoop-src: deps/hadoop-1.0.3.tar.gz
 	mkdir -p $(BASE_DIR)/hadoop-src
 	tar xf $(DEPS_DIR)/hadoop-1.0.3.tar.gz --strip-components=1 -C $(BASE_DIR)/hadoop-src
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-extraewrapper-inject.patch
