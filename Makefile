@@ -13,6 +13,12 @@ deps/hadoop-1.0.3.tar.gz:
 	curl -L --fail --progress-bar -o $(DEPS_DIR)/hadoop-1.0.3.tar.gz 'https://archive.apache.org/dist/hadoop/core/hadoop-1.0.3/hadoop-1.0.3.tar.gz'
 
 hadoop-src: deps/hadoop-1.0.3.tar.gz
+	@echo "f42d05e5c7bb43f85119546b80296435  deps/hadoop-1.0.3.tar.gz" | md5sum --status -c; \
+		if [ $$? -ne 0 ] ; then \
+			echo "File $(DEPS_DIR)/hadoop-1.0.3.tar.gz seems corrupt, deleting..."; \
+			rm -f $(DEPS_DIR)/hadoop-1.0.3.tar.gz; \
+			echo "Run make to try again"; \
+		fi
 	mkdir -p $(BASE_DIR)/hadoop-src
 	tar xf $(DEPS_DIR)/hadoop-1.0.3.tar.gz --strip-components=1 -C $(BASE_DIR)/hadoop-src
 	patch --directory=$(BASE_DIR)/hadoop-src --forward --reject-file=- -p1 < $(BASE_DIR)/patch/hadoop-extraewrapper-inject.patch
