@@ -30,7 +30,7 @@ deps/extrae:
 	make -C $(DEPS_DIR)/extrae/
 	make -C $(DEPS_DIR)/extrae/ install
 
-hadoop-build: hadoop-src
+hadoop-build: hadoop-src extraewrapper
 	ant -buildfile $(BASE_DIR)/hadoop-src/build.xml -Ddist.dir='$(BASE_DIR)/hadoop-build' -Dextraewrapper.lib.dir='$(LOCAL_DIR)/lib/' -Dskip.contrib=true -Dskip.compile-mapred-classes=true package
 
 clean:
