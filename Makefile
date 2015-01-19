@@ -32,7 +32,7 @@ hadoop-src: deps/hadoop-1.0.3.tar.gz
 deps/extrae:
 	mkdir -p $(DEPS_DIR)/extrae
 	tar xf $(DEPS_DIR)/extrae-3.0.1.tar.bz2 --strip-components=1 -C $(DEPS_DIR)/extrae
-	( cd $(DEPS_DIR)/extrae/ ; ./configure --without-mpi --without-unwind --without-dyninst --without-papi --prefix=$(LOCAL_DIR)/ )
+	( cd $(DEPS_DIR)/extrae/ ; ./configure --without-mpi --without-unwind --without-dyninst --without-papi --enable-dcarrera-hadoop --prefix=$(LOCAL_DIR)/ )
 	make -C $(DEPS_DIR)/extrae/
 	make -C $(DEPS_DIR)/extrae/ install
 
