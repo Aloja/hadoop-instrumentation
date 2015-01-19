@@ -43,11 +43,6 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
          for(Token<?> token : UserGroupInformation.getCurrentUser().getTokens()) {
            childUGI.addToken(token);
          }
-+	//<smendoza>
-+	int myp = es.bsc.tools.extrae.Wrapper.GetPID();
-+	System.out.println("Child.java > task-pid="+myp);
-+	//</smendoza>
-+	
 +	es.bsc.tools.extrae.IDManager.registerTask(job, host+":"+port);
          
          // Create a final reference to the task for the doAs block
@@ -192,10 +187,6 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
  
  package org.apache.hadoop.mapred;
  
-+//smendoza
-+import java.lang.management.ManagementFactory;
-+//end_smendoza
-+
  import java.io.DataInput;
  import java.io.DataOutput;
  import java.io.File;
@@ -262,137 +253,9 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
    }
  
    private class OldTrackingRecordWriter<K, V> implements RecordWriter<K, V> {
-@@ -1478,8 +1495,57 @@
-       throws IOException, InterruptedException {
-         // Connect
-         URL url = mapOutputLoc.getOutputLocation();
--        URLConnection connection = url.openConnection();
--        
-+//<smendoza>
-+	URLConnection connection = url.openConnection();
-+	String pid = new File("/proc/self").getCanonicalFile().getName();
-+	System.out.println("le_pid="+pid);
-+	String[] net_fnames = {"/proc/"+pid+"/net/tcp","/proc/"+pid+"/net/udp","/proc/"+pid+"/net/raw","/proc/"+pid+"/net/unix"};
-+	BufferedReader br = null;
-+	//File file = new File(tcp_fname);
-+	//FileInputStream fis = null;
-+	System.out.println("elpid="+pid);
-+
-+/*
-+	try {
-+		String sCurrentLine;
-+		for(String net_fn: net_fnames){
-+			br = new BufferedReader(new FileReader(net_fn));
-+			while ((sCurrentLine = br.readLine()) != null) {
-+				System.out.println("4dapid["+net_fn+"]="+sCurrentLine);
-+			}
-+		}
-+
-+		fis = new FileInputStream(file);
-+		System.out.println("Total file size to read (in bytes) : "+ fis.available());
-+		int content;
-+		while ((content = fis.read()) != -1) {
-+			// convert to char and display it
-+			System.out.print((char) content);
-+		}
-+	} catch (IOException e) {
-+		e.printStackTrace();
-+	} finally {
-+		try {
-+				if (br != null)br.close();
-+			} catch (IOException ex) {
-+				ex.printStackTrace();
-+		}
-+		try {
-+			if (fis != null)
-+				fis.close();
-+		} catch (IOException ex) {
-+			ex.printStackTrace();
-+		}
-+	}
-+*/
-+	//Proxy proxy = new Proxy(Proxy.Type.DIRECT, new InetSocketAddress(InetAddress.getByName("172.20.0.16"), 59111));
-+	//SocketAddress addr = new InetSocketAddress("172.20.0.16", 48443);
-+	//Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
-+	//URLConnection connection = url.openConnection(proxy);
-+	//System.out.println("mypid="+ManagementFactory.getRuntimeMXBean().getName());
-+	//System.out.println("59111 -  url="+url+",conn.toString()="+connection.getContentType());
-+//</smendoza>
-+
-         InputStream input = setupSecureConnection(mapOutputLoc, connection);
-  
-         // Validate header from map output
-@@ -1635,6 +1701,52 @@
-             }
-           }
-         }
-+
-+//<smendoza>
-+   String pid = new File("/proc/self").getCanonicalFile().getName();
-+        System.out.println("le_pid="+pid);
-+        String[] net_fnames = {"/proc/"+pid+"/net/tcp"};//,"/proc/"+pid+"/net/udp","/proc/"+pid+"/net/raw","/proc/"+pid+"/net/unix"};
-+        BufferedReader br = null;
-+        //File file = new File(tcp_fname);
-+        //FileInputStream fis = null;
-+        System.out.println("elpid="+pid);
-+        try {
-+                String sCurrentLine;
-+                for(String net_fn: net_fnames){
-+                        br = new BufferedReader(new FileReader(net_fn));
-+                        while ((sCurrentLine = br.readLine()) != null) {
-+                                System.out.println("4dapid2["+net_fn+"]="+sCurrentLine);
-+                        }
-+                }
-+/*
-+                fis = new FileInputStream(file);
-+                System.out.println("Total file size to read (in bytes) : "+ fis.available());
-+                int content;
-+                while ((content = fis.read()) != -1) {
-+                        // convert to char and display it
-+                        System.out.print((char) content);
-+                }
-+*/
-+        } catch (Exception e) {
-+                e.printStackTrace();
-+        } finally {
-+                try {
-+                                if (br != null)br.close();
-+                        } catch (IOException ex) {
-+                                ex.printStackTrace();
-+                }
-+/*
-+                try {
-+                        if (fis != null)
-+                                fis.close();
-+                } catch (IOException ex) {
-+                        ex.printStackTrace();
-+                }
-+*/
-+        }
-+	
-+//</smendoza>
-+
-         try {
-           return connection.getInputStream();
-         } catch (IOException ioe) {
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Task.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/Task.java
 --- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Task.java	2012-05-08 22:34:52.000000000 +0200
 +++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/Task.java	2014-07-23 10:35:36.000000000 +0200
-@@ -58,6 +58,14 @@
- import org.apache.hadoop.util.StringUtils;
- import org.apache.hadoop.fs.FSDataInputStream;
- 
-+//smendoza
-+/*
-+import java.lang.management.ManagementFactory;
-+import java.util.Arrays;
-+import es.bsc.tools.extrae.*;
-+*/
-+//endsmendoza
-+
- /** 
-  * Base class for tasks.
-  * 
 @@ -192,6 +200,7 @@
                                                      TaskStatus.Phase.SHUFFLE, 
                                                    counters);
@@ -406,12 +269,6 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
          Path mapOutput =  mapOutputFile.getOutputFile();
          FileSystem localFS = FileSystem.getLocal(conf);
 -        return localFS.getFileStatus(mapOutput).getLen();
-+
-+        //<smendoza>
-+        int myp = es.bsc.tools.extrae.Wrapper.GetPID();
-+        System.out.println("Task.java > task-pid="+myp);
-+        //</smendoza>
-+
 +        long s = localFS.getFileStatus(mapOutput).getLen();
 +	es.bsc.tools.extrae.Wrapper.Event(es.bsc.tools.extrae.Events.Types.MapTaskOutputSize, s);
 +	return s;
@@ -419,48 +276,6 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
        } catch (IOException e) {
          LOG.warn ("Could not find output size " , e);
        }
-@@ -1250,6 +1268,20 @@
-      * read the next key 
-      */
-     private void readNextKey() throws IOException {
-+
-+//<smendoza>
-+/*
-+        int t[] = new int[1];
-+        long v[] = new long[1];
-+        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-+        t[0]=1039911;
-+        v[0]=Long.parseLong(pid);
-+        
-+	es.bsc.tools.extrae.Wrapper.nEvent(t,v);
-+        System.out.println("Task.ValuesIterator.readNextKey() t="+Arrays.toString(t)+", v="+Arrays.toString(v)+", pid="+pid);
-+*/
-+//</smendoza>
-+
-       more = in.next();
-       if (more) {
-         DataInputBuffer nextKeyBytes = in.getKey();
-@@ -1266,6 +1298,20 @@
-      * @throws IOException
-      */
-     private void readNextValue() throws IOException {
-+
-+//<smendoza>
-+/*
-+        int t[] = new int[1];
-+        long v[] = new long[1];
-+        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-+        t[0]=1039911;
-+        v[0]=Long.parseLong(pid);
-+
-+        es.bsc.tools.extrae.Wrapper.nEvent(t,v);
-+        System.out.println("Task.ValuesIterator.readNextValue() t="+Arrays.toString(t)+", v="+Arrays.toString(v)+", pid="+pid);
-+*/
-+//</smendoza>
-+
-       DataInputBuffer nextValueBytes = in.getValue();
-       valueIn.reset(nextValueBytes.getData(), nextValueBytes.getPosition(), nextValueBytes.getLength());
-       value = valDeserializer.deserialize(value);
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/TaskTracker.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/TaskTracker.java
 --- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/TaskTracker.java	2012-05-08 22:34:53.000000000 +0200
 +++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/TaskTracker.java	2014-06-11 15:38:47.000000000 +0200
