@@ -39,7 +39,7 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Child.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/Child.java
 --- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/Child.java	2012-05-08 22:34:53.000000000 +0200
 +++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/Child.java	2014-06-11 15:38:46.000000000 +0200
-@@ -243,6 +243,12 @@
+@@ -243,6 +243,7 @@
          for(Token<?> token : UserGroupInformation.getCurrentUser().getTokens()) {
            childUGI.addToken(token);
          }
@@ -177,33 +177,6 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/ReduceTask.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/ReduceTask.java
 --- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/ReduceTask.java	2012-05-08 22:34:52.000000000 +0200
 +++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/ReduceTask.java	2014-06-11 15:38:46.000000000 +0200
-@@ -1,4 +1,4 @@
--/**
-+ /**
-  * Licensed to the Apache Software Foundation (ASF) under one
-  * or more contributor license agreements.  See the NOTICE file
-  * distributed with this work for additional information
-@@ -18,16 +18,24 @@
- 
- package org.apache.hadoop.mapred;
- 
- import java.io.DataInput;
- import java.io.DataOutput;
- import java.io.File;
- import java.io.IOException;
- import java.io.InputStream;
- import java.io.OutputStream;
-+import java.io.BufferedReader;
-+import java.io.FileReader;
-+import java.io.IOException;
- import java.net.URI;
- import java.net.URL;
- import java.net.URLClassLoader;
- import java.net.URLConnection;
-+import java.net.*;
- import java.text.DecimalFormat;
- import java.util.ArrayList;
- import java.util.Collections;
 @@ -347,6 +355,7 @@
    @SuppressWarnings("unchecked")
    public void run(JobConf job, final TaskUmbilicalProtocol umbilical)
@@ -264,7 +237,7 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
    }
  
    ////////////////////////////////////////////
-@@ -943,7 +952,16 @@
+@@ -943,7 +952,10 @@
        try {
          Path mapOutput =  mapOutputFile.getOutputFile();
          FileSystem localFS = FileSystem.getLocal(conf);
