@@ -1,16 +1,3 @@
-diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/core/org/apache/hadoop/io/ObjectWritable.java hadoop-dist-dcarrera/src/core/org/apache/hadoop/io/ObjectWritable.java
---- hadoop-1.0.3/src/core/org/apache/hadoop/io/ObjectWritable.java	2012-05-08 22:34:52.000000000 +0200
-+++ hadoop-dist-dcarrera/src/core/org/apache/hadoop/io/ObjectWritable.java	2014-08-20 11:06:33.000000000 +0200
-@@ -180,6 +180,9 @@
-     Class<?> declaredClass = PRIMITIVE_NAMES.get(className);
-     if (declaredClass == null) {
-       try {
-+	//<smendoza>
-+	//System.out.println("@ObjectWritable.className="+className);
-+	//</smendoza>
-         declaredClass = conf.getClassByName(className);
-       } catch (ClassNotFoundException e) {
-         throw new RuntimeException("readObject can't find class " + className, e);
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java
 --- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2012-05-08 22:34:53.000000000 +0200
 +++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2014-06-11 15:38:40.000000000 +0200
