@@ -336,6 +336,279 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/core/org/apache/hadoop/ipc/S
      
      int count = (buffer.remaining() <= NIO_BUFFER_LIMIT) ?
                  channel.read(buffer) : channelIO(channel, null, buffer);
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/core/org/apache/hadoop/net/NetUtils.java hadoop-dist-dcarrera/src/core/org/apache/hadoop/net/NetUtils.java
+--- hadoop-1.0.3/src/core/org/apache/hadoop/net/NetUtils.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-dist-dcarrera/src/core/org/apache/hadoop/net/NetUtils.java	2014-06-11 15:38:36.000000000 +0200
+@@ -45,6 +45,8 @@
+ import org.apache.hadoop.security.SecurityUtil;
+ import org.apache.hadoop.util.ReflectionUtils;
+ 
++import es.bsc.tools.extrae.*;
++
+ public class NetUtils {
+   private static final Log LOG = LogFactory.getLog(NetUtils.class);
+     
+@@ -452,9 +454,20 @@
+    */
+   public static OutputStream getOutputStream(Socket socket, long timeout) 
+                                              throws IOException {
++/* smendoza original
+     return (socket.getChannel() == null) ? 
+             socket.getOutputStream() : new SocketOutputStream(socket, timeout);            
+-  }
++*/
++//<smendoza>
++OutputStream rval;
++if(socket.getChannel() == null){
++	rval = socket.getOutputStream();
++} else {
++	rval = new SocketOutputStream(socket, timeout);
++}
++return rval;
++//</smendoza>
++ }
+   
+   /**
+    * This is a drop-in replacement for 
+@@ -487,6 +500,9 @@
+       socket.connect(endpoint, timeout);
+     } else {
+       SocketIOWithTimeout.connect(ch, endpoint, timeout);
++//smendoza
++	System.out.println(ch.socket().getLocalSocketAddress());
++//end smendoza
+     }
+ 
+     // There is a very rare case allowed by the TCP specification, such that
+@@ -503,6 +519,27 @@
+         "Localhost targeted connection resulted in a loopback. " +
+         "No daemon is listening on the target port.");
+     }
++
++	SocketAddress remoteAddr = (ch == null) ? socket.getRemoteSocketAddress() : ch.getRemoteAddress();
++	SocketAddress localAddr = (ch == null) ? socket.getLocalSocketAddress() : ch.getLocalAddress();
++
++	if(ch != null){
++		SocketAddress isaLocal= ch.getLocalAddress();
++		System.out.println("isaLocal="+isaLocal);
++	}
++
++	int pid = es.bsc.tools.extrae.Wrapper.GetPID();
++/*
++	InetAddress remoteAddr = socket.getInetAddress();
++	int remotePort = socket.getPort();
++	InetAddress localAddr = socket.getLocalAddress();
++	int localPort = socket.getLocalPort();
++*/	
++//smendoza
++	//String port = socket.getLocalPort(); NOT NECESSARY, localAddr already has the port
++	System.out.println(pid+":"+localAddr+" --> "+remoteAddr);
++	System.out.println(pid+":"+localAddr+":WALA-NetUtils");
++//end smendoza    
+   }
+   
+   /** 
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java
+--- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/DFSClient.java	2014-06-11 15:38:41.000000000 +0200
+@@ -60,6 +60,10 @@
+ 
+ import javax.net.SocketFactory;
+ 
++//smendoza
++import java.lang.management.ManagementFactory;
++
++
+ /********************************************************
+  * DFSClient can connect to a Hadoop Filesystem and 
+  * perform basic file tasks.  It uses the ClientProtocol
+@@ -210,6 +214,12 @@
+   DFSClient(InetSocketAddress nameNodeAddr, ClientProtocol rpcNamenode,
+       Configuration conf, FileSystem.Statistics stats)
+     throws IOException {
++
++	//<smendoza>
++	String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++	System.out.println("DFSClient pid["+pid+"]");
++	//</smendoza>
++
+     this.conf = conf;
+     this.stats = stats;
+     this.nnAddress = nameNodeAddr;
+@@ -944,6 +954,11 @@
+               new BufferedOutputStream(NetUtils.getOutputStream(sock), 
+                                        DataNode.SMALL_BUFFER_SIZE));
+           in = new DataInputStream(NetUtils.getInputStream(sock));
++            //smendoza
++            String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++            System.out.println(pid+":"+sock.getLocalSocketAddress()+":WALA-DFSClient");
++            System.out.println("DFSClient LOCAL["+sock.getLocalSocketAddress()+"] REMOTE["+sock.getRemoteSocketAddress()+"] pid["+pid+"]");
++            //end smendoza
+ 
+           if (LOG.isDebugEnabled()) {
+             LOG.debug("write to " + datanodes[j].getName() + ": "
+@@ -2095,6 +2110,11 @@
+           s = socketFactory.createSocket();
+           NetUtils.connect(s, targetAddr, socketTimeout);
+           s.setSoTimeout(socketTimeout);
++            //<smendoza>
++        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++		System.out.println(pid+":" + s.getLocalSocketAddress()+":WALA-DFSClient");
++		System.out.println("DFSClient: LOCAL[" + s.getLocalSocketAddress() + "] , DFSClient[" + s.getRemoteSocketAddress() + "]");
++            //</smendoza>
+           blockReader = BlockReader.newBlockReader(s, src, blk.getBlockId(), 
+               accessToken, 
+               blk.getGenerationStamp(),
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/BlockReceiver.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/BlockReceiver.java
+--- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/BlockReceiver.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/BlockReceiver.java	2014-08-01 12:56:56.000000000 +0200
+@@ -43,6 +43,15 @@
+ import org.apache.hadoop.util.StringUtils;
+ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FORMAT;
+ 
++//smendoza
++import java.lang.management.ManagementFactory;
++import java.util.Arrays;
++import es.bsc.tools.extrae.*;
++import java.nio.ByteBuffer;
++import java.nio.ByteOrder;
++import java.net.InetAddress;
++//endsmendoza
++
+ /** A class that receives a block and writes to its own disk, meanwhile
+  * may copies it to another site. If a throttler is provided,
+  * streaming throttling is also supported.
+@@ -261,9 +270,60 @@
+       toRead = (maxPacketReadLen > 0 ? maxPacketReadLen : buf.capacity())
+                - buf.limit();
+     }
+-    
++
++	/*
++	*/
++	//<smendoza>
++	//Anyadir cuando el proceso empieza a estar ocupado, falta asociar socket del stream con su ip:puerto y con 
++	//Extra
++
++	int t[] = new int[5];
++	long v[] = new long[5];
++	String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++	t[0]=1019911;
++	v[0]=Long.parseLong(pid);
++	String ip_local = this.inAddr.split(":")[0].substring(1); //El inAddr tiene este formato /172.20.10.1:XXXXX
++	String port_local = this.inAddr.split(":")[1];
++	String ip_remote = this.myAddr.split(":")[0].substring(1);
++	String port_remote = this.myAddr.split(":")[1];
++	
++	byte a[] = InetAddress.getByName(ip_local).getAddress();
++	byte b[] = InetAddress.getByName(ip_remote).getAddress();
++
++        t[1]=1019912;
++        v[1]=ByteBuffer.wrap(a).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t[2]=1019913;
++        v[2]=Long.parseLong(port_local);
++	t[3]=1019914;
++	v[3]=ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t[4]=1019915;
++        v[4]=Long.parseLong(port_remote);
++
++	es.bsc.tools.extrae.Wrapper.nEvent(t,v);
++	System.out.println("readToBuf t="+Arrays.toString(t)+", v="+Arrays.toString(v)+", pid="+pid+", ip_local="+ip_local+", port_local="+port_local+", ip_remote="+ip_remote+", port_remote="+port_remote+", ip-local-getInt()="+v[1]);
++	
++	//</smendoza>
++ 
+     int nRead = in.read(buf.array(), buf.limit(), toRead);
+-    
++
++        //<smendoza>
++        int t2[] = new int[5];
++        long v2[] = new long[5];
++        t2[0]=1029911;
++        v2[0]=Long.parseLong(pid);
++        t2[1]=1029912;
++        v2[1]=ByteBuffer.wrap(a).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t2[2]=1029913;
++        v2[2]=Long.parseLong(port_local);
++        t2[3]=1029914;
++        v2[3]=ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t2[4]=1029915;
++        v2[4]=Long.parseLong(port_remote);
++
++	es.bsc.tools.extrae.Wrapper.nEvent(t2,v2);
++	//</smendoza>
++
++ 
+     if (nRead < 0) {
+       throw new EOFException("while trying to read " + toRead + " bytes");
+     }
+@@ -526,11 +586,51 @@
+         responder.start(); // start thread to processes reponses
+       }
+ 
++        /*
++        */
++        //<smendoza>
++	//At the begin of the BlockReceiver.receiveBlock()
++        //Anyadir cuando el proceso empieza a estar ocupado, falta asociar socket del stream con su ip:puerto y con 
++        //Extra
++        int t[] = new int[5];
++        long v[] = new long[5];
++        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++        t[0]=1029911;
++        v[0]=Long.parseLong(pid);
++        String ip_local = this.inAddr.split(":")[0].substring(1); //El inAddr tiene este formato /172.20.10.1:XXXXX
++        String port_local = this.inAddr.split(":")[1];
++        String ip_remote = this.myAddr.split(":")[0].substring(1);
++        String port_remote = this.myAddr.split(":")[1];
++
++        byte a[] = InetAddress.getByName(ip_local).getAddress();
++        byte b[] = InetAddress.getByName(ip_remote).getAddress();
++
++        t[1]=1029912;
++        v[1]=ByteBuffer.wrap(a).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t[2]=1029913;
++        v[2]=Long.parseLong(port_local);
++        t[3]=1029914;
++        v[3]=ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL; // sin el bit a bit el cast lo coge unsigned
++        t[4]=1029915;
++        v[4]=Long.parseLong(port_remote);
++
++        es.bsc.tools.extrae.Wrapper.nEvent(t,v);
++        System.out.println("receiveBlock t="+Arrays.toString(t)+", v="+Arrays.toString(v)+", pid="+pid+", ip_local="+ip_local+", port_local="+port_local+", ip_remote="+ip_remote+", port_remote="+port_remote+", ip-local-getInt()="+v[1]);
++
++	//</smendoza>
++
++
+       /* 
+        * Receive until packet length is zero.
+        */
+       while (receivePacket() > 0) {}
+ 
++        //<smendoza>
++        //At the end of the BlockReceiver.receiveBlock()
++        es.bsc.tools.extrae.Wrapper.nEvent(t,v);
++        //</smendoza>
++
++
+       // flush the mirror out
+       if (mirrorOut != null) {
+         try {
+@@ -845,7 +945,14 @@
+                        " : Thread is interrupted.");
+               break;
+             }
+-            
++           
++                //smendoza
++		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++                  System.out.println("BlockReceiverInfo LOCAL["+receiver.inAddr+"] REMOTE["+receiver.myAddr+"] BYTES["+block.getNumBytes()+"] pid["+ pid+"]");
++                  System.out.println(pid+":"+receiver.inAddr+":WALA-BlockReceiver");
++		//end smendoza
++
++ 
+             // If this is the last packet in block, then close block
+             // file and finalize the block before responding success
+             if (lastPacketInBlock && !receiver.finalized) {
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java
 --- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2012-05-08 22:34:53.000000000 +0200
 +++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataNode.java	2014-06-11 15:38:40.000000000 +0200
@@ -349,6 +622,74 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/
    }
    
    private ObjectName mxBean = null;
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiver.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiver.java
+--- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiver.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiver.java	2014-07-23 12:22:40.000000000 +0200
+@@ -46,6 +46,12 @@
+ import org.apache.hadoop.util.StringUtils;
+ import static org.apache.hadoop.hdfs.server.datanode.DataNode.DN_CLIENTTRACE_FORMAT;
+ 
++//<smendoza>
++import java.lang.management.ManagementFactory;
++import java.util.Arrays;
++import es.bsc.tools.extrae.*;
++//</smendoza>
++
+ /**
+  * Thread for processing incoming/outgoing data stream.
+  */
+@@ -69,6 +75,9 @@
+     remoteAddress = s.getRemoteSocketAddress().toString();
+     localAddress = s.getLocalSocketAddress().toString();
+     LOG.debug("Number of active connections is: " + datanode.getXceiverCount());
++      //<smendoza>
++      //System.out.println("DataXceiver_WALA: LOCAL[" + this.s.getLocalSocketAddress() + "] , REMOTE[" + this.s.getRemoteSocketAddress() + "]");
++      //</smednoza>
+   }
+ 
+   /**
+@@ -295,6 +304,28 @@
+     String firstBadLink = "";           // first datanode that failed in connection setup
+     short mirrorInStatus = (short)DataTransferProtocol.OP_STATUS_SUCCESS;
+     try {
++
++        /*
++        */
++        //<smendoza>
++        //Anyadir cuando el proceso empieza a estar ocupado, falta asociar socket del stream con su ip:puerto y con 
++        //Extra
++
++/*
++        int t[] = new int[1];
++        long v[] = new long[1];
++        String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++        t[0]=1019911;
++        v[0]=Long.parseLong(pid);
++	v[1]=s.getRemoteSocketAddress().toString().split(":")[0]; //remote ip
++	v[2]=s.getRemoteSocketAddress().toString().split(":")[1]; //remote port
++	v[3]=s.getLocalSocketAddress().toString().split(":")[0]; //remote ip
++	v[4]=s.getLocalSocketAddress().toString().split(":")[1]; //remote port
++        //es.bsc.tools.extrae.Wrapper.nEvent(t,v);
++        System.out.println("@DataXceiver.writeBlock(), s.getRemoteSocketAddress().toString()="+s.getRemoteSocketAddress().toString()+"s.getPort()="+s.getPort()+", s.getLocalSocketAddress().toString()="+s.getLocalSocketAddress().toString()+", s.getLocalPort()="+s.getLocalPort()+", pid="+pid);
++*/
++        //</smendoza>
++
+       // open a block receiver and check if the block does not exist
+       blockReceiver = new BlockReceiver(block, in, 
+           s.getRemoteSocketAddress().toString(),
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiverServer.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiverServer.java
+--- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiverServer.java	2012-05-08 22:34:53.000000000 +0200
++++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/datanode/DataXceiverServer.java	2014-06-11 15:38:40.000000000 +0200
+@@ -132,6 +132,9 @@
+         s.setTcpNoDelay(true);
+         new Daemon(datanode.threadGroup, 
+             new DataXceiver(s, datanode, this)).start();
++          //<smendoza>
++          //System.out.println("DataXceiverServer_WALA: LOCAL[" + s.getLocalSocketAddress() + "] , REMOTE[" + s.getRemoteSocketAddress() + "]");
++          //</smednoza>
+       } catch (SocketTimeoutException ignored) {
+         // wake up to see if should continue to run
+       } catch (AsynchronousCloseException ace) {
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java
 --- hadoop-1.0.3/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java	2012-05-08 22:34:53.000000000 +0200
 +++ hadoop-dist-dcarrera/src/hdfs/org/apache/hadoop/hdfs/server/namenode/NameNode.java	2014-06-11 15:38:41.000000000 +0200
@@ -390,6 +731,101 @@ diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/map
          
          // Create a final reference to the task for the doAs block
          final Task taskFinal = task;
+diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobClient.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/JobClient.java
+--- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobClient.java	2012-05-08 22:34:52.000000000 +0200
++++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/JobClient.java	2014-06-11 15:38:46.000000000 +0200
+@@ -88,6 +88,17 @@
+ import org.codehaus.jackson.map.JsonMappingException;
+ import org.codehaus.jackson.map.ObjectMapper;
+ 
++//<smendoza>
++import java.lang.management.ManagementFactory;
++import java.io.BufferedWriter;
++import java.io.File;
++import java.io.FileWriter;
++import java.io.IOException;
++//</smendoza>
++
++
++
++
+ /**
+  * <code>JobClient</code> is the primary interface for the user-job to interact
+  * with the {@link JobTracker}.
+@@ -532,6 +543,13 @@
+                    Configuration conf) throws IOException {
+     this.ugi = UserGroupInformation.getCurrentUser();
+     jobSubmitClient = createRPCProxy(jobTrackAddr, conf);
++
++//<smendoza>
++//print: pid:local-addr:local-port
++String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++System.out.println(pid+":"+jobTrackAddr.toString()+":WALA-JobClient");
++//</smendoza>
++
+   }
+ 
+   /**
+@@ -572,6 +590,9 @@
+   private boolean compareFs(FileSystem srcFs, FileSystem destFs) {
+     URI srcUri = srcFs.getUri();
+     URI dstUri = destFs.getUri();
++      //smendoza
++      //System.out.println("WALA JobClient srcUri["+srcUri+"] dstUri["+dstUri+"]");
++      //end smendoza
+     if (srcUri.getScheme() == null) {
+       return false;
+     }
+@@ -1237,6 +1258,12 @@
+     InputStream in = connection.getInputStream();
+     OutputStream out = new FileOutputStream(e.getTaskAttemptId() + ".profile");
+     IOUtils.copyBytes(in, out, 64 * 1024, true);
++
++//<smendoza>
++//System.out.println("WALA_JT_downloadconnection="+getTaskLogURL(e.getTaskAttemptId(), e.getTaskTrackerHttp()) +"&filter=profile");
++//</smendoza>
++
++
+   }
+ 
+   /** 
+@@ -1259,6 +1286,26 @@
+   public static RunningJob runJob(JobConf job) throws IOException {
+     JobClient jc = new JobClient(job);
+     RunningJob rj = jc.submitJob(job);
++
++//<smendoza>
++	try {
++ 		String jcPid = ManagementFactory.getRuntimeMXBean().getName();
++		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
++		System.out.println("JobClient.pid="+jcPid);
++	 	File file = new File("/tmp/smendoza/jc.pid");
++	 	// if file doesnt exists, then create it
++		if (!file.exists()) {
++			file.createNewFile();
++		}
++		FileWriter fw = new FileWriter(file.getAbsoluteFile());
++		BufferedWriter bw = new BufferedWriter(fw);
++		bw.write(jcPid);
++		bw.close();
++	} catch (IOException e) {
++		e.printStackTrace();
++	}
++//</smendoza>
++
+     try {
+       if (!jc.monitorAndPrintJob(job, rj)) {
+         LOG.info("Job Failed: " + rj.getFailureInfo());
+@@ -1390,6 +1437,9 @@
+                                   OutputStream out) {
+     try {
+       URLConnection connection = taskLogUrl.openConnection();
++//<smendoza>
++//System.out.println("WALA_JT_getTaskLogs()="+connection.getURL());
++//</smendoza>
+       connection.setReadTimeout(tasklogtimeout);
+       connection.setConnectTimeout(tasklogtimeout);
+       BufferedReader input = 
 diff -uNr -x c++ -x docs -x native hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobTracker.java hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/JobTracker.java
 --- hadoop-1.0.3/src/mapred/org/apache/hadoop/mapred/JobTracker.java	2012-05-08 22:34:52.000000000 +0200
 +++ hadoop-dist-dcarrera/src/mapred/org/apache/hadoop/mapred/JobTracker.java	2014-06-11 15:38:47.000000000 +0200
