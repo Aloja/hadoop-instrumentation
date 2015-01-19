@@ -26,3 +26,5 @@ export LOG4J_JAR="${LOCAL_DIR}/lib/log4j-1.2.17.jar"
 export LOG4J_CONFFILE="${BASE_DIR}/log4j.undef2prv.properties"
 
 export CATALINA_HOME=/home/smendoza/lightness/hadoop-apps/apache-tomcat-6.0.4
+
+export EXTRAE_LABELS="${BASE_DIR}/labels.txt"
