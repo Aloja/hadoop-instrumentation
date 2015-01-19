@@ -1,5 +1,11 @@
 EVENT_TYPE
-0 11111 TaskTracker
+0 11111 JobTracker
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 11112 TaskTracker
 VALUES
 0 End
 1 Start
@@ -10,7 +16,31 @@ VALUES
 12 ReducerReducePhase
 
 EVENT_TYPE
-0 22222 JobTracker
+0 11113 NameNode
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 11114 SecondaryNameNode
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 11115 DataNode
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 11116 MapTask
+VALUES
+0 End
+1 Start
+
+EVENT_TYPE
+0 11117 ReduceTask
 VALUES
 0 End
 1 Start
