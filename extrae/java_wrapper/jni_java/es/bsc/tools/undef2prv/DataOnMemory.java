@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -293,9 +294,9 @@ public class DataOnMemory {
         if (key.length > 1) { // Es una app/proceso con threads, la anyado a su daemon
             hmkey += ":" + key[1];
             DataOnMemory.addThreadNtask(key);
-            Undef2prv.logger.debug("addPidNtask(): IF! (key.length=" + key.length + ", key=" + key.toString() + ")");
+            Undef2prv.logger.debug("addPidNtask(): IF! (key.length=" + key.length + ", key=" + Arrays.toString(key) + ")");
         } else {
-            Undef2prv.logger.debug("addPidNtask(): ELSE! (key.length=" + key.length + ", key=" + key.toString() + ")");
+            Undef2prv.logger.debug("addPidNtask(): ELSE! (key.length=" + key.length + ", key=" + Arrays.toString(key) + ")");
         }
 
         DataOnMemory.pid_ntask.put(hmkey, ntask);
