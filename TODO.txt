@@ -128,6 +128,30 @@ El post-process-undef2prv.sh parseja els arxius $TMP_PPING/distributed-merge/dum
 
 
 
+DIAGNOSTIC
+----------
+Nomes han de sortir processos map
+grep ":33333:" mergeoutput.prv | cut -d: -f -5 | sort -u
+grep ":44444:" mergeoutput.prv | cut -d: -f -5 | sort -u
+grep ":11112:8:" mergeoutput.prv | cut -d: -f -5 | sort -u
+
+grep ":33333:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+grep ":44444:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+grep ":11112:8:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+
+Nomes han de sortir processos reduce
+grep ":11112:9:" mergeoutput.prv | cut -d: -f -5 | sort -u
+grep ":11112:10:" mergeoutput.prv | cut -d: -f -5 | sort -u
+grep ":11112:11:" mergeoutput.prv | cut -d: -f -5 | sort -u
+grep ":11112:12:" mergeoutput.prv | cut -d: -f -5 | sort -u
+
+grep ":11112:9:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+grep ":11112:10:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+grep ":11112:11:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+grep ":11112:12:" mergeoutput-out.prv | cut -d: -f -5 | sort -u
+
+
+
 COSES PER FER DEL POST-PROCESS
 ------------------------------
 
