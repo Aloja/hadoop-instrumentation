@@ -209,9 +209,14 @@ public class FileParaver {
 
             if (eventTypes.contains("33333")) {
                 //Eventos 33333: son MapReduce Tasks es.bsc.tools.extrae.Events.Types.MapOutputBuffer
-                pid = ner2.RecordEventsHM.get("99199");
+                pid = ner2.RecordEventsHM.remove("99199");
                 ntask = DataOnMemory.getNTaskByPid(pid);
                 Undef2prv.logger.debug("eventTypes=33333 - pid[" + pid + "]->ntask[" + ntask + "]");
+            } else if (eventTypes.contains("11112")) {
+                //Eventos 11112
+                pid = ner2.RecordEventsHM.remove("99199");
+                ntask = DataOnMemory.getNTaskByPid(pid);
+                Undef2prv.logger.debug("eventTypes=11112 - pid[" + pid + "]->ntask[" + ntask + "]");
             } else if (eventTypes.contains("5051")) {
                 //Eventos 5051: generados en la libpcap antes/despues de la comunicación
                 ip = ner2.RecordEventsHM.get("5051");
