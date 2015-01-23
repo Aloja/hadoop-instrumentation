@@ -1,6 +1,7 @@
 package es.bsc.tools.undef2prv;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -26,6 +27,12 @@ class Daemon {
     public static final String NODE_ID_MAP = "7";
     public static final String NODE_ID_REDUCE = "8";
     public static final String NODE_ID_JCLIENT = "9";
+
+    public static final Comparator<Daemon> APP_COMPARATOR = new Comparator<Daemon>() {
+        public int compare(Daemon d1, Daemon d2){
+            return Integer.valueOf(d1.app).compareTo(Integer.valueOf(d2.app));
+        }
+    };
 
     public Daemon(RecordNEvent ner) {
 //        this.recordId = ner.Process;

@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -141,6 +142,9 @@ class Cluster {
             ds.addAll(n.getDaemonsWithType(Daemon.NODE_ID_TASK));
             ds.addAll(n.getDaemonsWithType(Daemon.NODE_ID_JCLIENT));
         }
+
+        // Order them by original app id (it's visually better)
+        Collections.sort(ds, Daemon.APP_COMPARATOR);
 
         return ds;
     }
