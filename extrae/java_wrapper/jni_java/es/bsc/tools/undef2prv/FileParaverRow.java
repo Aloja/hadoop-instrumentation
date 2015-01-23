@@ -165,7 +165,7 @@ public class FileParaverRow {
         for (Daemon d : alld) {
             //String dapid = DataOnMemory.getPid(d.ip, d.ports.get(0));
             int extraeNtask = Integer.valueOf(d.extraeNtask);
-            str[extraeNtask - 1] = d.ip + "_" + Daemon.getDaemonTypeAsStr(d.type);
+            str[extraeNtask - 1] = CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(d.ip)) + "_" + Daemon.getDaemonTypeAsStr(d.type);
             //System.out.println("ConvertThreadNames_2 str[" + extraeNtask + "]=" + str[extraeNtask - 1] + ", pid=[" + d.extraeNtask + "]" + extraeNtask);
         }
         return str;

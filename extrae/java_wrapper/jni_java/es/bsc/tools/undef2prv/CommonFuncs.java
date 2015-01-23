@@ -1,5 +1,6 @@
 package es.bsc.tools.undef2prv;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -84,4 +85,17 @@ public class CommonFuncs {
         }
         return str;
     }
+
+    /**
+     * Converts the IP address from Integer to the human readable format 1.2.3.4
+     */
+    public static String ipIntToHuman(String ip) {
+        byte[] bytes = BigInteger.valueOf(Long.parseLong(ip)).toByteArray();
+        String result = null;
+        try {
+            result = InetAddress.getByAddress(bytes).getHostAddress();
+        } catch (UnknownHostException e) {}
+        return result;
+    }
+
 }
