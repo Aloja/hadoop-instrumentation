@@ -13,6 +13,7 @@ class Daemon {
     public String pid;
     public String type;
     public String ip;
+    public String app;
     public String extraeNtask = null;
     public ArrayList<String> ports = new ArrayList<>(); //Communication info from Dumfile
     public static HashMap<String, String> jthread_nthread = new HashMap<>(); //
@@ -28,6 +29,7 @@ class Daemon {
 
     public Daemon(RecordNEvent ner) {
 //        this.recordId = ner.Process;
+        this.app = ner.Application;
         Integer app = Integer.parseInt(ner.Application) + 1; //para que luego se les pueda identificar por el app
         this.recordId = app.toString();
         this.pid = ner.RecordEventsHM.get(RecordNEvent.KEY_NODE_DAEMON_PID);

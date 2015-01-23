@@ -304,11 +304,17 @@ public class FileParaver {
                 Undef2prv.logger.debug("RPC-SERVER-RCV(1500001)->pid:thread[" + pid + ":" + threadId + "]->ntask[" + ntask + "]");
             } else {
                 //PARA ANYADIR FUTURAS REIDENTIFICACIONES...
-                ntask = null;
+
+                // El evento pertenece a una app original que ha sido convertida a NTask, assignar el nuevo valor
+                ntask = DataOnMemory.hcluster.getNTaskFromApp(ner2.Application);
+
+                Undef2prv.logger.debug("FALLBACK(recordsToReidentify) [" + ner2.toStringParaverFormat() + "]->ntask[" + ntask + "]");
             }
 
             //String ntask = DataOnMemory.hcluster.getNTaskFromApp(ner2.Application);
             if (ntask == null) {
+                // Es null para no mezclar eventos de diferentes aplicaciones, ya que los nuevos id's no corresponden con los originales
+                ner2.Application = ntask;
                 Undef2prv.logger.error("ERROR-REIDENTIFYING(recordsToReidentify) ner2.Application[" + ner2.Application + "]->ntask[" + ntask + "]");
             } else {
 

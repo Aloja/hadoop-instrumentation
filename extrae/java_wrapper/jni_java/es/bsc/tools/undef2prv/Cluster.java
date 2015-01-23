@@ -151,7 +151,7 @@ class Cluster {
         ArrayList<Daemon> ds = new ArrayList<>();
 
         for (Daemon d : this.getAllDaemons()) {
-            if (app.equals(d.recordId)) {
+            if (app.equals(d.app)) {
                 ntask = d.extraeNtask;
                 Undef2prv.logger.debug("FOUND-BRO: " + app + "==" + d.recordId + ", d.extraeNtask=" + d.extraeNtask);
                 break;

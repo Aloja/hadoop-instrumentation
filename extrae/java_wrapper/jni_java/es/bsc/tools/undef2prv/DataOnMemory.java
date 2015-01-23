@@ -208,7 +208,7 @@ public class DataOnMemory {
 //            portDebugging.add(port);
                 //En este caso tendria que buscar por el process
             } else {
-                Undef2prv.logger.error("ip:port[" + ip + ":" + port + "]->NTask[" + NTask + "]");
+                Undef2prv.logger.error("getNTaskByIpPort ip:port[" + ip + ":" + port + "]->pid[" + dstPid + "]->NTask[" + NTask + "]");
             }
 
             return NTask;
