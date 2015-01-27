@@ -5,6 +5,11 @@ def puppet_module_install(name)
   "(puppet module list | grep --quiet #{name}) || puppet module install #{name}"
 end
 
+# Check required plugins are installed
+unless Vagrant.has_plugin?("vagrant-hostmanager")
+  raise "vagrant-hostmanager is not installed!\n\nRun the following command:\nvagrant plugin install vagrant-hostmanager"
+end
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
@@ -15,9 +20,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "ubuntu/trusty64"
-
-  config.vm.network "forwarded_port", guest: 50030, host: 50030
-  config.vm.network "forwarded_port", guest: 50070, host: 50070
 
   config.vm.synced_folder "../", "/vagrant/workspace"
 
@@ -33,6 +35,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "puppet" do |puppet|
     # puppet.options = "--verbose --debug"
   end
+
+  config.vm.define "default", primary: true do |master|
+    master.vm.hostname = "master"
+    master.vm.network "private_network", ip: "10.20.30.100"
+    master.vm.network "forwarded_port", guest: 50030, host: 50030
+    master.vm.network "forwarded_port", guest: 50070, host: 50070
+  end
+
+  config.vm.define "slave-1" do |slave_1|
+    slave_1.vm.hostname = "slave-1"
+    slave_1.vm.network "private_network", ip: "10.20.30.101"
+  end
+
+  # Enable vagrant-hostmanager plugin (to configure /etc/hosts of all machines)
+  config.hostmanager.enabled = true
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
