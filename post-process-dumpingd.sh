@@ -22,31 +22,11 @@ cat $TMP_PPING/dumping-host-port-pid.tmp | eval sed 's/[^:]*/\$(hostname --ip-ad
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
-#############################################
-### GET WALA's FROM HADOOP LOGS #############
-#############################################
-dumping_wala=$TMP_PPING/dumping.wala
-#Getting all the WALA from all the hadoop logs from all nodes
-while read node
-do
-ssh $node <<ENDSSH
-grep WALA $HADOOP_PREFIX/logs/* -R > $dumping_wala
-cat $dumping_wala | cut -d':' -f2,3,4 > $dumping_wala'.tmp'
-mv $dumping_wala'.tmp' $dumping_wala
-#replace del /
-sed -r 's/[\/\ ]+//g' $dumping_wala > $dumping_wala'.tmp'
-mv $dumping_wala'.tmp' $dumping_wala
-#127.0.0.1 must be replaced by the nodeip
-cat $dumping_wala >> $TMP_PPING/dumping-host-port-pid.hlog
-ENDSSH
-done < $HADOOP_PREFIX/conf/slaves
-
 #get dumping-host-port-pid from hadoop nodes
 mkdir $TMP_PPING/distributed-merge
 while read node
 do
 scp $node:$TMP_PPING/dumping-host-port-pid.lsof $TMP_PPING/distributed-merge/dumping-host-port-pid_$node.lsof
-scp $node:$TMP_PPING/dumping-host-port-pid.hlog $TMP_PPING/distributed-merge/dumping-host-port-pid_$node.hlog
 done < $HADOOP_PREFIX/conf/slaves
 
 #merge all nodes dumping-host-port-pid into a unique
