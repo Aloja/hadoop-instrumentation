@@ -1,7 +1,3 @@
-BASE_DIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))))
-DEPS_DIR := $(BASE_DIR)/deps
-LOCAL_DIR := $(HOME)/instrumentation
-
 .PHONY: all clean hadoop-build
 
 all: extraewrapper hadoop-build

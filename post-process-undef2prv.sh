@@ -3,7 +3,7 @@ set -o errexit  # Exit immediately on non-zero status
 set -o nounset  # Treat unset variables as an error
 set -o xtrace   # Debug mode: display the command and its expanded arguments
 
-source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/env-execution.sh
+. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
 #cat /tmp/dumping-host-port-pid.tmp | eval sed 's/[^:]*/$(hostname --ip-address)/'2 > /tmp/dumping-host-port-pid
 

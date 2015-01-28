@@ -3,6 +3,7 @@
 /hadoop-build/
 /hadoop-src/
 /vagrant/.vagrant
+/vars-local.sh
 
 # Compiled source #
 ###################
