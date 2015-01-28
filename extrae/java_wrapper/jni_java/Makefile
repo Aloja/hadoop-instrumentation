@@ -5,7 +5,7 @@ extrae_wrapper:
 	$(JAVAC) -cp $(HADOOP_LIBS) es/bsc/tools/extrae/*.java
 
 undef2prv:
-	$(JAVAC) -cp $(LOG4J_JAR) es/bsc/tools/undef2prv/*.java
+	$(JAVAC) -cp libs/log4j-1.2.17.jar es/bsc/tools/undef2prv/*.java
 
 javah:  extrae_wrapper
 	$(JAVAH) -d $(JNI_H_DEST) -jni es.bsc.tools.extrae.Wrapper

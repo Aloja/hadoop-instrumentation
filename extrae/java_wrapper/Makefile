@@ -3,23 +3,6 @@
 #EXTRAE_HOME from env_extrae.sh
 #LOG4J from env_extrae.sh
 
-BASE_DIR := $(abspath $(dir $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST)))/../../)
-export LOCAL_DIR=$(HOME)/instrumentation
-
-export HADOOP_PREFIX=$(BASE_DIR)/hadoop-src
-export LOG4J_HOME=/home/smendoza/lightness/hadoop-apps/apache-log4j-1.2.17
-export LOG4J_JAR=$(HADOOP_PREFIX)/lib/log4j-1.2.15.jar
-export LOG4J_CONFFILE=$(BASE_DIR)/log4j.configuration
-JAVA_HOME := $(shell readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")
-export JAVA_HOME
-export LD_LIBRARY_PATH=/home/smendoza/lightness/hadoop-apps/libpcap-1.4.0-dist/lib:/home/smendoza/lightness/hadoop-apps/extrae-2.5.1-dist/lib
-export JAVAC=$(JAVA_HOME)/bin/javac
-export JAVAH=$(JAVA_HOME)/bin/javah
-export JAR=$(JAVA_HOME)/bin/jar
-export JNI_H_DEST=$(BASE_DIR)/extrae/java_wrapper/jni_c/include
-export JAVA_INCLUDE=$(JAVA_HOME)/include/linux
-export JAVA_INCLUDE2=$(JAVA_HOME)/include
-
 # Some compiled binaries will be placed here
 # For example, the sniffer util from java_wrapper
 export BINDIR=$(LOCAL_DIR)/bin
@@ -53,7 +36,7 @@ export EXTRAE_WRAPPER_SHARED_LIB=$(LIBDIR)
 
 export UNDEF2PRV_JAR=$(LIBDIR)/undef2prv.jar
 
-export HADOOP_LIBS=$(HADOOP_PREFIX)/hadoop-core-1.0.3.jar
+export HADOOP_LIBS=$(HADOOP_SRC)/hadoop-core-1.0.3.jar
 
 export JNI_JAVA_SRC=$(PWD)/jni_java
 
