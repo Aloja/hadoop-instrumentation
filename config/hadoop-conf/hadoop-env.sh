@@ -5,28 +5,23 @@
 # set JAVA_HOME in this file, so that it is correctly defined on
 # remote nodes.
 
+# Load instrumentation configuration from vars.sh file (the path can be changed here)
+VARS_FILE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/../../vars.sh
+if [ -e "${VARS_FILE}" ]; then
+  . "${VARS_FILE}"
+fi
+
 # The java implementation to use.  Required.
 # export JAVA_HOME=/usr/lib/j2sdk1.5-sun
-export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")
-
-# Extrae & extraewrapper
-export EXTRAE_ON=1
-export EXTRAE_DIR=/tmp/smendoza
-export EXTRAE_HOME="${HOME}/instrumentation"
-export HADOOP_EXTRAE_LIBRARY_PATH="${EXTRAE_HOME}/lib"
-export SNIFFER_BIN="${EXTRAE_HOME}/bin/sniffer"
-export SIESTA=500000
 
 # Extra Java CLASSPATH elements.  Optional.
 # export HADOOP_CLASSPATH=
-export HADOOP_CLASSPATH="${HADOOP_EXTRAE_LIBRARY_PATH}/extraewrapper.jar"
 
 # The maximum amount of heap to use, in MB. Default is 1000.
 # export HADOOP_HEAPSIZE=2000
 
 # Extra Java runtime options.  Empty by default.
 # export HADOOP_OPTS=-server
-export HADOOP_OPTS="-Djava.net.preferIPv4Stack=true"
 
 # Command specific options appended to HADOOP_OPTS when specified
 export HADOOP_NAMENODE_OPTS="-Dcom.sun.management.jmxremote $HADOOP_NAMENODE_OPTS"

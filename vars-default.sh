@@ -10,8 +10,6 @@ export LIB_DIR="${LOCAL_DIR}/lib"
 export CONFIG_DIR="${BASE_DIR}/config"
 export CONFIG_HADOOP="${CONFIG_DIR}/hadoop-conf"
 
-export SNIFFER_BIN="${BIN_DIR}/sniffer"
-
 export PCUSER=smendoza
 export LNESS_HOME=${BASE_DIR}
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::" | sed "s:/jre::")
@@ -35,3 +33,14 @@ export LOG4J_CONFFILE="${BASE_DIR}/log4j.undef2prv.properties"
 export CATALINA_HOME=/home/smendoza/lightness/hadoop-apps/apache-tomcat-6.0.4
 
 export EXTRAE_LABELS="${BASE_DIR}/labels.txt"
+
+
+# Config for hadoop execution (imported from hadoop/conf/hadoop-env.sh)
+export EXTRAE_ON=1
+export EXTRAE_DIR=/tmp/smendoza
+export EXTRAE_HOME="${LOCAL_DIR}"
+export HADOOP_EXTRAE_LIBRARY_PATH="${EXTRAE_HOME}/lib"
+export SNIFFER_BIN="${BIN_DIR}/sniffer"
+export SIESTA=500000
+export HADOOP_CLASSPATH="${HADOOP_EXTRAE_LIBRARY_PATH}/extraewrapper.jar"
+export HADOOP_OPTS="-Djava.net.preferIPv4Stack=true"
