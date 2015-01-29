@@ -52,7 +52,7 @@ head -n -1 $TMP_PPING/distributed-merge/TRACE.mpits.tmp > $TMP_PPING/distributed
 rm $TMP_PPING/distributed-merge/TRACE.mpits.tmp
 
 #Generacion de todos los mpits con el TRACE.mpits separados por apps
-${BIN_DIR}/mpi2prv -f $TMP_PPING/distributed-merge/TRACE.mpits -o $TMP_PPING/mergeoutput.prv
+${BIN_DIR}/mpi2prv -no-syn -f $TMP_PPING/distributed-merge/TRACE.mpits -o $TMP_PPING/mergeoutput.prv
 
 : '
 rm $TMP_PPING/distributed-merge/TRACE*.mpit
