@@ -44,7 +44,7 @@ ssh $node <<ENDSSH
 rm -rf $TMP_PPING/*
 rm -f $HADOOP_PREFIX/hs_err_pid*.log
 rm -rf $HADOOP_PREFIX/logs/*
-rm -rf /tmp/hadoop-vagrant*
+rm -rf /tmp/hadoop-\${USER}/*
 rm -f /tmp/smfile
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
