@@ -16,9 +16,6 @@ if ! setcap -q -v cap_net_raw=eip "${SNIFFER_BIN}"; then
     exit 1
 fi
 
-# Use java7 to run
-sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
-
 # Copy hadoop config to all nodes
 while read node
 do
