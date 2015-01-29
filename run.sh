@@ -19,8 +19,12 @@ fi
 # Use java7 to run
 sudo update-alternatives --set java /usr/lib/jvm/java-7-oracle/jre/bin/java
 
-# Copy hadoop config
-cp ${CONFIG_HADOOP}/* ${HADOOP_PREFIX}/conf/
+# Copy hadoop config to all nodes
+while read node
+do
+scp ${CONFIG_HADOOP}/* ${node}:${HADOOP_PREFIX}/conf/
+done < ${CONFIG_HADOOP}/slaves
+
 
 # DEPRECATED
 #set capabilities en el cluster de minerva
