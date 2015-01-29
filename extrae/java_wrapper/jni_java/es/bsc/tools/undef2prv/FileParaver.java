@@ -218,7 +218,7 @@ public class FileParaver {
                 ntask = DataOnMemory.getNTaskByPid(pid);
                 Undef2prv.logger.debug("eventTypes=11112 - pid[" + pid + "]->ntask[" + ntask + "]");
             } else if (eventTypes.contains("5051")) {
-                //Eventos 5051: generados en la libpcap antes/despues de la comunicación
+                //Eventos 5051: generados en la libpcap antes/despues de la comunicacion
                 ip = ner2.RecordEventsHM.get("5051");
                 port = ner2.RecordEventsHM.get("5052");
                 ntask = DataOnMemory.getNTaskByIpPort(ip, port);

@@ -24,7 +24,7 @@ public class ParaverHeader {
      * been generated. Is is important to use the symbol # at the beginning of
      * the header incl because it inidicates that it is in ASCII trace format:
      * fume: total trace time in microseconds - nNodes(nCpus 1 [mCpus2,...,nC
-     * pusN]) : defines the number of nodes and number pro-cess°. per node.
+     * pusN]) : defines the number of nodes and number process. per node.
      * After the number of nodes (nNodes), the list ofthe number of processors
      * must be specified (nCpusl is the number of processors on node 1, nCpus2
      * is the number of processors on node 2,...). - nAppl: number of
@@ -71,7 +71,7 @@ public class ParaverHeader {
     }
 
     public static String genTraceTime() {
-        //TODO: obtener el trace-record con el tiempo mínimo y el trace-record con tiempo máximo
+        //TODO: obtener el trace-record con el tiempo minimo y el trace-record con tiempo maximo
         //Long totalTraceTime = 4323979284422710L;
         BigInteger totalTraceTime = new BigInteger("0");
 
