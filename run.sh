@@ -6,15 +6,22 @@ set -o xtrace   # Debug mode: display the command and its expanded arguments
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
 # Try to change permission
+while read node
+do
+ssh $node <<ENDSSH
 sudo --non-interactive setcap cap_net_raw=eip ${SNIFFER_BIN} || true
+ENDSSH
+done < $HADOOP_PREFIX/conf/slaves
 
 # Check sniffer binary has the correct capabilities set
-if ! setcap -q -v cap_net_raw=eip "${SNIFFER_BIN}"; then
-    echo "Insuficient capabilities set in binary ${SNIFFER_BIN}"
-    echo "Please execute as root:"
-    echo "    sudo setcap cap_net_raw=eip ${SNIFFER_BIN}"
-    exit 1
-fi
+while read node
+do
+ssh -n $node "setcap -q -v cap_net_raw=eip \"${SNIFFER_BIN}\"" || { \
+echo "Insuficient capabilities set in node \"$node\" binary ${SNIFFER_BIN}
+Please execute as root:
+    sudo setcap cap_net_raw=eip ${SNIFFER_BIN}"; \
+exit 1; }
+done < $HADOOP_PREFIX/conf/slaves
 
 # Copy hadoop config to all nodes
 while read node
@@ -46,6 +53,7 @@ rm -f $HADOOP_PREFIX/hs_err_pid*.log
 rm -rf $HADOOP_PREFIX/logs/*
 rm -rf /tmp/hadoop-\${USER}/*
 rm -f /tmp/smfile
+mkdir -p $EXTRAE_DIR
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
