@@ -140,7 +140,9 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 		//yolandab
 		int ret;
 		fprintf(stdout, "PCKHANDLER KILLING\n");
-		fd = open("/tmp/smendoza/pipe", O_RDWR);
+		char pipe_name[2000];
+		snprintf(pipe_name, sizeof pipe_name, "%s/pipe", getenv("EXTRAE_DIR"));
+		fd = open(pipe_name, O_RDWR);
 		write(fd, &c, sizeof (char));
 
 		if (ret < 0) fprintf(stdout, "KILLING FROM PCKHANDLER");

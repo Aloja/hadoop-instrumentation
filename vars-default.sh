@@ -21,7 +21,6 @@ export JAVA_INCLUDE="${JAVA_HOME}/include/linux"
 export JAVA_INCLUDE2="${JAVA_HOME}/include"
 export LNESS_LIBS=$LNESS_HOME/lib
 export LD_LIBRARY_PATH=$LNESS_HOME/lib
-export TMP_PPING=/tmp/smendoza
 export HADOOP_PREFIX="${BASE_DIR}/hadoop-build"
 export HADOOP_JAR_EXAMPLES="${HADOOP_PREFIX}/hadoop-examples-*.jar"
 export HADOOP_SRC="${BASE_DIR}/hadoop-src"
@@ -35,9 +34,12 @@ export CATALINA_HOME=/home/smendoza/lightness/hadoop-apps/apache-tomcat-6.0.4
 export EXTRAE_LABELS="${BASE_DIR}/labels.txt"
 
 
+export TRACES_OUTPUT="${BASE_DIR}/traces"
+
+
 # Config for hadoop execution (imported from hadoop/conf/hadoop-env.sh)
 export EXTRAE_ON=1
-export EXTRAE_DIR=/tmp/smendoza
+export EXTRAE_DIR="/tmp/traces"
 export EXTRAE_HOME="${LOCAL_DIR}"
 export HADOOP_EXTRAE_LIBRARY_PATH="${EXTRAE_HOME}/lib"
 export SNIFFER_BIN="${BIN_DIR}/sniffer"

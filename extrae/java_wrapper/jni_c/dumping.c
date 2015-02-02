@@ -8,8 +8,10 @@
 void dumpingd(int ports[], int nports) {
 
 	//output files
-	char *fname="/tmp/smendoza/dumping-host-port-pid";
-	char *flogname="/tmp/smendoza/dumpingd.log";
+	char fname[2000];
+	snprintf(fname, sizeof fname, "%s/dumping-host-port-pid", getenv("EXTRAE_DIR"));
+	char flogname[2000];
+	snprintf(flogname, sizeof flogname, "%s/dumpingd.log", getenv("EXTRAE_DIR"));
 	int i;
 	char command[MAX_COMMAND_LEN];
 	char *siesta = getenv("SIESTA");

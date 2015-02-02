@@ -41,7 +41,7 @@ echo "### CLEANING HADOOP CLUSTER ###########################"
 while read node
 do
 ssh $node <<ENDSSH
-rm -rf $TMP_PPING/*
+rm -rf $EXTRAE_DIR/*
 rm -f $HADOOP_PREFIX/hs_err_pid*.log
 rm -rf $HADOOP_PREFIX/logs/*
 rm -rf /tmp/hadoop-\${USER}/*

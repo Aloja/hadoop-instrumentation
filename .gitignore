@@ -2,6 +2,7 @@
 /deps/hadoop-1.0.3.tar.gz
 /hadoop-build/
 /hadoop-src/
+/traces/
 /vagrant/.vagrant
 /vars-local.sh
 

@@ -21,9 +21,6 @@ export CPP=g++
 export CFLAGS=-fPIC
 export LIBS=
 
-export EXTRAE_ON=1
-export EXTRAE_DIR=/tmp/smendoza
-
 export EXTRAE_HOME=$(BASE_DIR)/deps/extrae
 export EXTRAELIBS=$(LIBDIR)
 export EXTRAEINC=$(LOCAL_DIR)/include

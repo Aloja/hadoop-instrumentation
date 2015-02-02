@@ -123,7 +123,8 @@ void generate_filter(char *filter, int ports[], int nports) {
 	//              True if the packet is an IPv6 multicast packet.
 
 
-	char *fname = "/tmp/smendoza/sniffer.log";
+	char fname[2000];
+	snprintf(fname, sizeof fname, "%s/sniffer.log", getenv("EXTRAE_DIR"));
 	FILE *logfile = fopen(fname, "w");
 	fprintf(logfile, "sniffer.c->c.generate_filter()...");
 	fflush(logfile);
