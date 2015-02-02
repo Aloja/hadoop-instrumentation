@@ -15,13 +15,12 @@ set -o xtrace   # Debug mode: display the command and its expanded arguments
 while read node
 do
 ssh $node <<ENDSSH
-mv $EXTRAE_DIR/dumping-host-port-pid $EXTRAE_DIR/dumping-host-port-pid.unfiltered
-cat $EXTRAE_DIR/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep -v LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g' >> $EXTRAE_DIR/dumping-host-port-pid
-cat $EXTRAE_DIR/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g'  >> $EXTRAE_DIR/dumping-host-port-pid
-mv $EXTRAE_DIR/dumping-host-port-pid $EXTRAE_DIR/dumping-host-port-pid_unsorted
-sort -k1,3 -u  $EXTRAE_DIR/dumping-host-port-pid_unsorted   > $EXTRAE_DIR/dumping-host-port-pid
-mv $EXTRAE_DIR/dumping-host-port-pid $EXTRAE_DIR/dumping-host-port-pid.tmp
-cat $EXTRAE_DIR/dumping-host-port-pid.tmp | eval sed 's/[^:]*/\$(hostname --ip-address)/'2 > $EXTRAE_DIR/dumping-host-port-pid.lsof
+cp $EXTRAE_DIR/dumping-host-port-pid $EXTRAE_DIR/dumping-host-port-pid.unfiltered
+cat $EXTRAE_DIR/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep -v LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g' >> $EXTRAE_DIR/dumping-host-port-pid.filtered
+cat $EXTRAE_DIR/dumping-host-port-pid.unfiltered | grep -v COMMAND | grep LISTEN | grep java | tr -s ' ' | sed -e 's/:/ /g' | sed -e 's/->/ /g' | cut -d ' ' -f 2,9,10 | sed -e 's/ /:/g'  >> $EXTRAE_DIR/dumping-host-port-pid.filtered
+cp $EXTRAE_DIR/dumping-host-port-pid.filtered $EXTRAE_DIR/dumping-host-port-pid_unsorted
+sort -k1,3 -u  $EXTRAE_DIR/dumping-host-port-pid_unsorted   > $EXTRAE_DIR/dumping-host-port-pid_sorted
+cat $EXTRAE_DIR/dumping-host-port-pid_sorted | eval sed 's/[^:]*/\$(hostname --ip-address)/'2 > $EXTRAE_DIR/dumping-host-port-pid.lsof
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
