@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,6 +20,8 @@ import java.util.Set;
 public class FileParaver {
 
     protected HashMap<String, ArrayList<Object>> nseq_NERToConvert = new HashMap<>(); //records to convert
+    protected HashMap<String, SyncInfo> syncinfo_from_app = new HashMap<>(); //records to convert
+    protected HashMap<String, Long> sync_offset_from_ip = new HashMap<>(); //records to convert
     protected ArrayList<RecordNEvent> nseq_NERDemonInfo = new ArrayList<>(); //records to convert
     protected Set<RecordNEvent> recordsToReidentify = new HashSet<>(); //records to reidentify, not convert
     protected ArrayList<RecordComm> ERCConverted = new ArrayList<>();
@@ -42,6 +45,49 @@ public class FileParaver {
         }
     }
 
+    public void syncAnalysis() {
+        ArrayList<Daemon> tasktrackers = DataOnMemory.hcluster.getAllTaskTrackers();
+        // Sort by original app id, this way the first is the master, then the slaves in order
+        Collections.sort(tasktrackers, Daemon.APP_COMPARATOR);
+
+        Long master_start = this.syncinfo_from_app.get(tasktrackers.get(0).app).start;
+
+        for (int i=1; i<tasktrackers.size(); i++) {
+            Long offset = (this.syncinfo_from_app.get(tasktrackers.get(i).app).start - master_start);
+            this.sync_offset_from_ip.put(tasktrackers.get(i).ip, offset);
+        }
+        for (Map.Entry<String, Long> entry : this.sync_offset_from_ip.entrySet()) {
+            Undef2prv.logger.info("SYNC-ANALYSIS DIFF IP [" + entry.getKey() + "] " + entry.getValue());
+        }
+    }
+
+    public void syncCommsEvents() {
+        Long offset = null;
+        for (ArrayList<Object> events : this.nseq_NERToConvert.values()) {
+            for (Object object : events) {
+                RecordNEvent ner = (RecordNEvent) object;
+                offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
+                ner.setTimeOffset(offset);
+            }
+        }
+    }
+
+    public void syncAllNodes() {
+        // At this point all the events's "Application" has been converted to "NTask" (after running reidentifyNEventRecords)
+        Long offset = null;
+        for (RecordNEvent ner : this.nseq_NERDemonInfo) {
+            offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
+            ner.setTimeOffset(offset);
+        }
+        for (RecordNEvent ner : this.recordsToReidentify) {
+            offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
+            ner.setTimeOffset(offset);
+        }
+        // It's too late to do it here, the original events that generated the
+        // comms must be the ones to sync, not the final comm.
+        // for (RecordComm ner : this.ERCConverted) {}
+    }
+
     public void loadLine(String line) {
 
         //TODO: if match re "number:number:...:7770:..:7771:...:7772:number\merged" then add, else don't add
@@ -63,6 +109,9 @@ public class FileParaver {
                 Undef2prv.logger.info("CLASSIFY-AS-DAEMON[" + line + "]");
                 DataOnMemory.hcluster.addDaemon(ner);
                 this.nseq_NERDemonInfo.add(ner);
+            } else if (line.contains(":" + RecordNEvent.KEY_NODE_SYNC + ":")) {
+                Undef2prv.logger.info("CLASSIFY-TIMESTAMP[" + line + "]");
+                this.syncinfo_from_app.put(ner.Application, new SyncInfo(ner));
             } else if (line.contains(":" + RecordNEvent.KEY_LOCAL_IP_sin_addr + ":")) {
                 //NEvent comunicaciones (77770,77771, ...)
                 //agrupados por numero de secuencia del paquete

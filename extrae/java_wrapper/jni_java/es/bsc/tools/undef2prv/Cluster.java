@@ -149,6 +149,17 @@ class Cluster {
         return ds;
     }
 
+    public ArrayList<Daemon> getAllTaskTrackers() {
+
+        ArrayList<Daemon> ds = new ArrayList<>();
+
+        for (Node n : this.nodes.values()) {
+            ds.addAll(n.getDaemonsWithType(Daemon.NODE_ID_TASKTRACKER));
+        }
+
+        return ds;
+    }
+
     public String getNTaskFromApp(String app) {
 
         String ntask = null;
@@ -167,6 +178,14 @@ class Cluster {
 
         return ntask;
 
+    }
+
+    public String getIpFromNTask(String ntask) {
+        if (ntask == null) return null;
+        for (Daemon d : this.getAllDaemons()) {
+            if (ntask.equals(d.extraeNtask)) return d.ip;
+        }
+        return null;
     }
 
     public HashMap<String, ArrayList<String>> getPortsGroupedByPid() {
