@@ -129,6 +129,14 @@ JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_PushIDsDown
 
 /*
  * Class:     es_bsc_tools_extrae_Wrapper
+ * Method:    TimestampEvent
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_TimestampEvent
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     es_bsc_tools_extrae_Wrapper
  * Method:    StartSnifferLowLevel
  * Signature: (Z[I)V
  */
