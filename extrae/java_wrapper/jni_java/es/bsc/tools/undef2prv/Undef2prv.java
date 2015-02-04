@@ -26,13 +26,9 @@ public class Undef2prv {
         String fileRow = args[2]; // *.row file
         String filePcf = args[3]; // *.pcf file
 
-        //log4j conf file
-        String confFile;
-        if ((confFile = System.getenv("LOG4J_CONFFILE")) == null) {
-            confFile = "/home/smendoza/lightness/hadoopextrae/extrae/java_wrapper/jni_java/es/bsc/tools/undef2prv/log4j.configuration";
-        }
-
         //log4j output log
+        String confFile = System.getenv("LOG4J_CONFFILE");
+        System.setProperty("TRACES_OUTPUT", System.getenv("TRACES_OUTPUT"));
         PropertyConfigurator.configure(confFile);
         System.out.println("Logfile en " + confFile);
 

@@ -27,7 +27,7 @@ export HADOOP_SRC="${BASE_DIR}/hadoop-src"
 
 export JNI_H_DEST="${BASE_DIR}/extrae/java_wrapper/jni_c/include"
 
-export LOG4J_CONFFILE="${BASE_DIR}/log4j.undef2prv.properties"
+export LOG4J_CONFFILE="${BASE_DIR}/extrae/java_wrapper/jni_java/es/bsc/tools/undef2prv/log4j.undef2prv.properties"
 
 export CATALINA_HOME=/home/smendoza/lightness/hadoop-apps/apache-tomcat-6.0.4
 
