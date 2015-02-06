@@ -92,3 +92,6 @@ VALUES
 
 EVENT_TYPE
 0 88882 Process PID
+
+EVENT_TYPE
+0 88883 Process timestamp

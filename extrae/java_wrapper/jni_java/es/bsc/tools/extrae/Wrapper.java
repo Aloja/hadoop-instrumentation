@@ -33,6 +33,7 @@ public class Wrapper
     public static native int GetID();
     public static native int GetNumTasks(); 
     public static native void PushIDsDown(String name, int id);
+    public static native void TimestampEvent();
     public static native void StartSnifferLowLevel(boolean inbound, int ports[]);
     public static native void StartPortMapperLowLevel(final int ports[]);// adding ports, S
     public static void StartSniffer(final int ports[]) {

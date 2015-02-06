@@ -211,7 +211,9 @@ public class IDManager {
         if (registered) {
             return;
         }
-        
+
+        Wrapper.TimestampEvent();
+
         int ports[] = digestConfiguration(conf);
         int types[] = {88880, 88881, 88882};
         long values[] = {inetAddressToLong(), 4, Wrapper.GetPID()};

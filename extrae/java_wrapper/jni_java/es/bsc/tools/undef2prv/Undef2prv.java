@@ -35,6 +35,7 @@ public class Undef2prv {
         try {
 
             DataOnMemory.fprv.loadOnMemoryPrv(filePrv);
+            DataOnMemory.fprv.syncAnalysis();
             DataOnMemory.loadJClient();
             //LOG
             Undef2prv.logger.info("prv loaded...");
@@ -50,8 +51,10 @@ public class Undef2prv {
             Undef2prv.logger.info("Mapping pid-ntask generated...");
 
             //.prv conversion
+            DataOnMemory.fprv.syncCommsEvents();
             DataOnMemory.fprv.convertNEventsToComms();
             DataOnMemory.fprv.reidentifyNEventRecords();
+            DataOnMemory.fprv.syncAllNodes();
             DataOnMemory.fprv.sortRecords();
             DataOnMemory.fprv.printPrvFile();
 

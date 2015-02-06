@@ -128,6 +128,18 @@ El post-process-undef2prv.sh parseja els arxius $TMP_PPING/distributed-merge/dum
 
 
 
+SYNCHRONIZATION WITH MULTIPLE NODES
+-----------------------------------
+Inicialment el mpi2prv tenia el parametre -syn, i com que al principi les proves es feien en un unic node les traces no tenien sentit. Al treure-ho es va comprovar que els diferents processos quedaven sincronitzats correctament. Al passar a executar multiples nodes, es va tornar a veure que les traces no tenien sentit, ja que si no s'especifica res al mpi2prv, aquest detecta en quants nodes s'ha executat la instrumentació i activa o desactiva la sincronització automaticament. Es pot veure com a http://compss.bsc.es/svn/releases/compss/latest/files/extrae/ChangeLog surt aquest comentari: "-syn is automatically set to on/off depending on the nodes where the instrumented application ran".
+
+Intentat canviar el TSC de les maquines virtuals del virtualbox (https://www.virtualbox.org/manual/ch09.html#changetscmode), pero no ha funcionat.
+
+Treure low power de les CPU, per evitar que canvii els MHz. Provar primer al portatil del bsc, i si no funciona intentar-ho a minerva.
+
+El comptador "rdtsc" comença desde 0 al inici del sistema. Quan es fan execucions amb multiples maquines virtuals mitjançant vagrant, l'ordre i el delay entre l'arrancada d'aquestes significa que les traces estan desplaçades. Hi ha dues possibles solucions. Es pot agafar un punt de referencia de cada node, per exemple el moment d'inici del daemon DataNode, ja que s'inicien consecutivament al principi (potser hi ha una mica de delay ja que s'inicien sequencialment de forma síncrona, però pot ser prou bo). Una alternativa pot ser crear un event nou que tingui com a valor el unix timestamp actual (amb la màxima precisió), ja que d'aquesta forma per a cada node hi haurà una relació entre el unix timestamp i el rdtsc, i es pot moure tots els events per normalitzar-ho.
+
+
+
 DIAGNOSTIC
 ----------
 Nomes han de sortir processos map

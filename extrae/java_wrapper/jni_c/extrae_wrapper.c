@@ -60,6 +60,16 @@ unsigned int get_num_tasks(void) {
 	return NUMTASKS;
 }
 
+void timestamp_event() {
+	// https://stackoverflow.com/questions/5833094/get-a-timestamp-in-c-in-microseconds
+	// https://stackoverflow.com/questions/12392278/measure-time-in-linux-getrusage-vs-clock-gettime-vs-clock-vs-gettimeofday
+	// https://www.gnu.org/software/libc/manual/html_node/Elapsed-Time.html
+
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	Extrae_event((extrae_type_t) 88883, (extrae_value_t) ((unsigned long long) 1000000ull*tv.tv_sec + tv.tv_usec));
+}
+
 JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_Init(JNIEnv *env, jclass jc) {
 
 	/*
@@ -267,6 +277,10 @@ JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_PushIDsDown(JNIEnv *env,
 	  (*env)->ReleaseStringUTFChars(env, name, inCStr);
 	 */
 
+}
+
+JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_TimestampEvent(JNIEnv *env, jclass jc) {
+	timestamp_event();
 }
 
 JNIEXPORT void JNICALL Java_es_bsc_tools_extrae_Wrapper_StartSnifferLowLevel(JNIEnv *env, jclass jc, jboolean inbound, jintArray ports) {

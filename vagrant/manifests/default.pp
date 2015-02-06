@@ -108,26 +108,16 @@ file { '/home/vagrant/.bash_aliases':
 }
 
 
-# Configure passwordless SSH to localhost
-exec { 'ssh-keygen':
-    user => 'vagrant',
-    command => 'ssh-keygen -t rsa -P "" -f /home/vagrant/.ssh/id_rsa',
-    creates => '/home/vagrant/.ssh/id_rsa',
+# Configure passwordless SSH
+file { '/home/vagrant/.ssh/id_rsa':
+    source  => '/vagrant/files/id_rsa',
+    mode => 600,
+}
+file { '/home/vagrant/.ssh/id_rsa.pub':
+    source  => '/vagrant/files/id_rsa.pub',
 }
 exec { 'authorized_keys':
     user => 'vagrant',
-    command => 'cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys',
-    require => Exec['ssh-keygen'],
-    unless => 'grep "`cat /home/vagrant/.ssh/id_rsa.pub`" /home/vagrant/.ssh/authorized_keys',
-}
-exec { 'known_hosts':
-    user => 'vagrant',
-    command => 'ssh-keyscan -H `hostname` >> /home/vagrant/.ssh/known_hosts \
-                && ssh-keyscan -H `ip -oneline -4 addr show eth0 | grep -Po "inet \K[\d.]+"` >> /home/vagrant/.ssh/known_hosts \
-                && ssh-keyscan -H `hostname`,`ip -oneline -4 addr show eth0 | grep -Po "inet \K[\d.]+"` >> /home/vagrant/.ssh/known_hosts \
-                && ssh-keyscan -H localhost >> /home/vagrant/.ssh/known_hosts \
-                && ssh-keyscan -H 127.0.0.1 >> /home/vagrant/.ssh/known_hosts \
-                && ssh-keyscan -H localhost,127.0.0.1 >> /home/vagrant/.ssh/known_hosts',
-    require => Exec['ssh-keygen'],
-    creates => '/home/vagrant/.ssh/known_hosts',
+    command => 'echo "`cat /vagrant/files/id_rsa.pub`" >> /home/vagrant/.ssh/authorized_keys',
+    unless => 'grep "`cat /vagrant/files/id_rsa.pub`" /home/vagrant/.ssh/authorized_keys',
 }

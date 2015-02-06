@@ -30,6 +30,7 @@ public class RecordNEvent {
     public static final String KEY_NODE_IP_sin_addr = "88880";
     public static final String KEY_NODE_TYPE = "88881";
     public static final String KEY_NODE_DAEMON_PID = "88882";
+    public static final String KEY_NODE_SYNC = "88883";
     private static final int FLAG_SYN = 0x02;
     private static final int FLAG_FIN = 0x01;
     private static final int FLAG_ACK = 0x10;
@@ -51,6 +52,22 @@ public class RecordNEvent {
 
         for (int i = 6; i < splitted.length; i = i + 2) {
             this.RecordEventsHM.put(splitted[i], splitted[i + 1]);
+        }
+    }
+
+    public void setTimeOffset(Long offset) {
+        if (offset == null) return;
+
+        this.EventTime = String.valueOf(Long.parseLong(this.EventTime) + offset);
+
+        // State records change the end_time too
+        if (this.RecordType.equals("1")) {
+            // I have to do this shitty workaround because states are saved
+            // like user events, so the end_time is saved as a key of an event
+            String key = this.RecordEventsHM.keySet().iterator().next();
+            String value = this.RecordEventsHM.remove(key);
+            key = String.valueOf(Long.parseLong(key) + offset);
+            this.RecordEventsHM.put(key, value);
         }
     }
 
@@ -159,6 +176,10 @@ public class RecordNEvent {
 
     public String getNodeType() {
         return RecordEventsHM.get(RecordNEvent.KEY_NODE_TYPE);
+    }
+
+    public String getTimestamp() {
+        return RecordEventsHM.get(RecordNEvent.KEY_NODE_SYNC);
     }
 
     public boolean isSyn() {
