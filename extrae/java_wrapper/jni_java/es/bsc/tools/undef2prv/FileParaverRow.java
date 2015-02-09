@@ -60,16 +60,17 @@ public class FileParaverRow {
             //LEVEL THREAD SIZE X
             String[] replacements = FileParaverRow.ConvertThreadNames();
             //TODO: anyadir rename de las pid_ntask que hacen referencia a RPC-Server Listener, Reader, Handler y Responder
-            String[] replacements2 = FileParaverRow.ConvertThreadNamesRpcServers();
-            int threadsNumber = replacements.length + replacements2.length;
+            // String[] replacements2 = FileParaverRow.ConvertThreadNamesRpcServers();
+            // int threadsNumber = replacements.length + replacements2.length;
+            int threadsNumber = replacements.length;
             String p3 = String.format("LEVEL THREAD SIZE %d\n", threadsNumber);
             buffwrttr.write(p3);
             for (String r : replacements) {
                 buffwrttr.write(r + "\n");
             }
-            for (String r : replacements2) {
-                buffwrttr.write(r + "\n");
-            }
+            // for (String r : replacements2) {
+            //     buffwrttr.write(r + "\n");
+            // }
             buffwrttr.flush();
 
             /*
