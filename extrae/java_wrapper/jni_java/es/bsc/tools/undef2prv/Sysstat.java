@@ -12,7 +12,7 @@ class Sysstat {
     public static final String CPU_IDLE_EVENT = "2009";
 
     public String ip;
-    public String timestamp;
+    public Long timestamp;
     public String cpu_user;
     public String cpu_nice;
     public String cpu_system;
@@ -23,8 +23,8 @@ class Sysstat {
     public Sysstat(String line) {
         String[] splitted = line.split(";");
 
-        this.ip = splitted[0];
-        this.timestamp = splitted[2];
+        this.ip = CommonFuncs.ipHumanToInt(splitted[0]);
+        this.timestamp = Long.valueOf(splitted[2]) * 1000000L;  // Converted to microseconds to match SyncInfo format
         this.cpu_user = splitted[4];
         this.cpu_nice = splitted[5];
         this.cpu_system = splitted[6];
@@ -42,7 +42,7 @@ class Sysstat {
         vars.add(Integer.toString(num_app));  // Application
         vars.add("1");  // Process
         vars.add("1");  // Thread
-        vars.add(this.timestamp);  // EventTime
+        vars.add(this.timestamp.toString());  // EventTime
 
         vars.add(CPU_USER_EVENT);
         vars.add(this.cpu_user);

@@ -171,7 +171,7 @@ public class FileParaverRow {
         }
         int num_sysstat = alld.size();
         for (String s : DataOnMemory.sysstats.keySet()) {
-            str[num_sysstat] = s + "_" + "STATS";
+            str[num_sysstat] = CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(s)) + "_" + "STATS";
             num_sysstat++;
         }
         return str;

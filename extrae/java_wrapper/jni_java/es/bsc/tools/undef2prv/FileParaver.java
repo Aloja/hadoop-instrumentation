@@ -61,6 +61,18 @@ public class FileParaver {
         }
     }
 
+    public void syncSysstat() {
+        SyncInfo master = this.syncinfo_from_app.get(DataOnMemory.hcluster.getAllTaskTrackers().get(0).app);
+
+        for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
+            String ip = entry.getKey();
+            ArrayList<Sysstat> sysstats = entry.getValue();
+            for (Sysstat sysstat : sysstats) {
+                sysstat.timestamp = (sysstat.timestamp - master.timestamp) * 1000L + master.tsc;
+            }
+        }
+    }
+
     public void loadOnMemorySysstat(String filePath) throws FileNotFoundException {
 
         BufferedReader reader = new BufferedReader(new FileReader(filePath));

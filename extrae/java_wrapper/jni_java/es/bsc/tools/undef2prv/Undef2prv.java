@@ -38,6 +38,7 @@ public class Undef2prv {
             DataOnMemory.fprv.loadOnMemoryPrv(filePrv);
             DataOnMemory.fprv.loadOnMemorySysstat(fileSysstat);
             DataOnMemory.fprv.syncAnalysis();
+            DataOnMemory.fprv.syncSysstat();
             DataOnMemory.loadJClient();
             //LOG
             Undef2prv.logger.info("prv loaded...");

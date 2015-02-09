@@ -87,6 +87,19 @@ public class CommonFuncs {
     }
 
     /**
+     * Converts the IP address from human readable format 1.2.3.4 to Integer
+     * 10.20.30.101 -> 1696470026
+     */
+    public static String ipHumanToInt(String ip) {
+        String result = null;
+        try {
+            InetAddress bar = InetAddress.getByName(ip);
+            result = Integer.toString(ByteBuffer.wrap(bar.getAddress()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt());
+        } catch (UnknownHostException e) {}
+        return result;
+    }
+
+    /**
      * Converts the IP address from Integer to the human readable format 1.2.3.4
      */
     public static String ipIntToHuman(String ip) {
