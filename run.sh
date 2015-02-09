@@ -64,6 +64,14 @@ cd $HADOOP_PREFIX
 bin/hadoop namenode -format
 sleep 5
 
+echo "### STARTING SYSSTAT ###########################"
+while read node
+do
+ssh $node <<ENDSSH
+sar -o $EXTRAE_DIR/sysstat.sar 1 >/dev/null 2>&1 &
+ENDSSH
+done < $HADOOP_PREFIX/conf/slaves
+
 echo "### STARTING HADOOP CLUSTER ###########################"
 #Iniciando Cluster DFS
 bin/start-dfs.sh
@@ -92,6 +100,14 @@ bin/stop-mapred.sh
 bin/stop-dfs.sh
 
 cd $wtgb
+
+echo "### STOPPING SYSSTAT ###########################"
+while read node
+do
+ssh $node <<ENDSSH
+killall -9 sar
+ENDSSH
+done < $HADOOP_PREFIX/conf/slaves
 
 #Kill the sniffer on all the Hadoop nodes
 filter="ps aux  | grep sniffer | grep -v grep | grep -v sh | tr -s ' '  | cut -d' ' -f2"

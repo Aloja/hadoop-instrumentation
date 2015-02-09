@@ -161,13 +161,18 @@ public class FileParaverRow {
     public static String[] ConvertThreadNames() {
         //Convert Daemons Thread_Names
         ArrayList<Daemon> alld = DataOnMemory.hcluster.getAllDaemons();
-        String[] str = new String[alld.size()];
+        String[] str = new String[alld.size() + DataOnMemory.sysstats.keySet().size()];
 
         for (Daemon d : alld) {
             //String dapid = DataOnMemory.getPid(d.ip, d.ports.get(0));
             int extraeNtask = Integer.valueOf(d.extraeNtask);
             str[extraeNtask - 1] = CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(d.ip)) + "_" + Daemon.getDaemonTypeAsStr(d.type);
             //System.out.println("ConvertThreadNames_2 str[" + extraeNtask + "]=" + str[extraeNtask - 1] + ", pid=[" + d.extraeNtask + "]" + extraeNtask);
+        }
+        int num_sysstat = alld.size();
+        for (String s : DataOnMemory.sysstats.keySet()) {
+            str[num_sysstat] = s + "_" + "STATS";
+            num_sysstat++;
         }
         return str;
     }

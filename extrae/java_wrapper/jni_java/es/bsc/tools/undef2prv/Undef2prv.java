@@ -25,6 +25,7 @@ public class Undef2prv {
         String filePrv = args[1]; // *.prv file
         String fileRow = args[2]; // *.row file
         String filePcf = args[3]; // *.pcf file
+        String fileSysstat = args[4]; // sysstat.txt file
 
         //log4j output log
         String confFile = System.getenv("LOG4J_CONFFILE");
@@ -35,6 +36,7 @@ public class Undef2prv {
         try {
 
             DataOnMemory.fprv.loadOnMemoryPrv(filePrv);
+            DataOnMemory.fprv.loadOnMemorySysstat(fileSysstat);
             DataOnMemory.fprv.syncAnalysis();
             DataOnMemory.loadJClient();
             //LOG

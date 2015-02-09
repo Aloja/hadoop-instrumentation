@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -34,6 +35,7 @@ public class DataOnMemory {
 //    public static HashMap<String, CPort> puertosConflictivosCounter = new HashMap<>();
 //    public static HashMap<String, CPort> puertosConflictivosSize = new HashMap<>();
     public static String FILE_JC = "/tmp/smendoza/jc.pid";
+    public static LinkedHashMap<String, ArrayList<Sysstat>> sysstats = new LinkedHashMap<>();
 
     public DataOnMemory() {
     }

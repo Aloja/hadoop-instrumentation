@@ -69,6 +69,21 @@ ${BIN_DIR}/mpi2prv -no-syn -f $TRACES_OUTPUT/distributed-merge/TRACE.mpits -o $T
 
 
 
+############################
+### POST-PROCESS-SYSSTAT ###
+############################
+
+rm -f $TRACES_OUTPUT/sysstat*
+while read node
+do
+scp $node:$EXTRAE_DIR/sysstat.sar $TRACES_OUTPUT/sysstat-$node.sar
+sadf -d -h -U $TRACES_OUTPUT/sysstat-$node.sar -- -u -r -q >> $TRACES_OUTPUT/sysstat.txt
+ip=$(ssh -n $node "hostname --ip-address")
+sed -i "s/$node/$ip/" $TRACES_OUTPUT/sysstat.txt
+done < $HADOOP_PREFIX/conf/slaves
+
+
+
 ##############################
 ### POST-PROCESS-UNDEF2PRV ###
 ##############################
@@ -78,4 +93,4 @@ rm -f $TRACES_OUTPUT/undef2prv.log*
 
 #execute the undef2prv post-processing
 #procesa els ports i els genera al output
-${JAVA} -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TRACES_OUTPUT/distributed-merge/dumping-host-port-pid $TRACES_OUTPUT/mergeoutput.prv $TRACES_OUTPUT/mergeoutput.row $TRACES_OUTPUT/mergeoutput.pcf
+${JAVA} -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TRACES_OUTPUT/distributed-merge/dumping-host-port-pid $TRACES_OUTPUT/mergeoutput.prv $TRACES_OUTPUT/mergeoutput.row $TRACES_OUTPUT/mergeoutput.pcf $TRACES_OUTPUT/sysstat.txt
