@@ -5,4 +5,4 @@ set -o nounset  # Treat unset variables as an error
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
-make "$@"
+make -C ${BASE_DIR} "$@"
