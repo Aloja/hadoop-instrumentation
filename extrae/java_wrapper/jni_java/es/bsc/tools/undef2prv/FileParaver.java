@@ -61,6 +61,35 @@ public class FileParaver {
         }
     }
 
+    public void syncSysstat() {
+        SyncInfo master = this.syncinfo_from_app.get(DataOnMemory.hcluster.getAllTaskTrackers().get(0).app);
+
+        for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
+            String ip = entry.getKey();
+            ArrayList<Sysstat> sysstats = entry.getValue();
+            for (Sysstat sysstat : sysstats) {
+                sysstat.timestamp = (sysstat.timestamp - master.timestamp) * 1000L + master.tsc;
+            }
+        }
+    }
+
+    public void loadOnMemorySysstat(String filePath) throws FileNotFoundException {
+
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("#")) continue;  // Ignore comments
+
+                Sysstat sysstat = new Sysstat(line);
+                if (DataOnMemory.sysstats.get(sysstat.ip) == null) DataOnMemory.sysstats.put(sysstat.ip, new ArrayList<Sysstat>());
+                DataOnMemory.sysstats.get(sysstat.ip).add(sysstat);
+            }
+        } catch (IOException ex) {
+            //ERROR LEYENDO EL FICHERO...
+        }
+    }
+
     public void syncCommsEvents() {
         Long offset = null;
         for (ArrayList<Object> events : this.nseq_NERToConvert.values()) {
@@ -447,6 +476,17 @@ public class FileParaver {
 
             //First the prv header
             filepw.println(ParaverHeader.ParaverHeaderGenerator());
+
+            int num_sysstat = 1;
+            for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
+                String ip = entry.getKey();
+                ArrayList<Sysstat> sysstats = entry.getValue();
+                for (Sysstat sysstat : sysstats) {
+                    filepw.println(sysstat.toStringParaverFormat(DataOnMemory.hcluster.getAllDaemons().size() + num_sysstat));
+                    filepw.flush();
+                }
+                num_sysstat++;
+            }
 
             //los 888888
             for (RecordNEvent ner : this.nseq_NERDemonInfo) {

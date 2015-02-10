@@ -57,7 +57,7 @@ public class ParaverHeader {
         String p2 = genTraceTime(); //ftime
         String p3 = genNNodes(); //nNodes(nCpus1[,nCpus2,...,nCpusN])
         //String p4 = genNAppl(); //manera clean
-        String p4 = Integer.toString(DataOnMemory.ntask_pid.keySet().size()); //manera dirty
+        String p4 = Integer.toString(DataOnMemory.ntask_pid.keySet().size() + DataOnMemory.sysstats.keySet().size()); //manera dirty
         //String p5 = genApplicationList(); //manera clean
         String p5 = dirtyGenApplicationList(); //manera dirty
 
@@ -114,6 +114,12 @@ public class ParaverHeader {
         for (String s : DataOnMemory.ntask_pid.keySet()) {
             Undef2prv.logger.debug("dirtyGenApplicationList->"+s);
             nthrStr.add(String.format("1(1:%s)", s)); // Default #threads is 1
+        }
+        int num_sysstat = nthrStr.size();
+        for (String s : DataOnMemory.sysstats.keySet()) {
+            num_sysstat++;
+            Undef2prv.logger.debug("dirtyGenApplicationList->"+num_sysstat);
+            nthrStr.add(String.format("1(1:%s)", num_sysstat)); // Default #threads is 1
         }
 
         String d = CommonFuncs.join(nthrStr.toArray(new String[nthrStr.size()]), ",");

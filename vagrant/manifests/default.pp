@@ -84,7 +84,7 @@ package { ['ant']:
 
 
 # Install various packages
-Apt::Source <| |> -> package { ['build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'screen', 'unzip', 'vim']:
+Apt::Source <| |> -> package { ['build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'screen', 'sysstat', 'unzip', 'vim']:
     ensure => installed,
 }
 
