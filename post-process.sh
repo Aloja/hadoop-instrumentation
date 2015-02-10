@@ -77,7 +77,7 @@ rm -f $TRACES_OUTPUT/sysstat*
 while read node
 do
 scp $node:$EXTRAE_DIR/sysstat.sar $TRACES_OUTPUT/sysstat-$node.sar
-sadf -d -h -U $TRACES_OUTPUT/sysstat-$node.sar -- -u -r -q >> $TRACES_OUTPUT/sysstat.txt
+sadf -d -h -U $TRACES_OUTPUT/sysstat-$node.sar -- -u -B -r -q >> $TRACES_OUTPUT/sysstat.txt
 ip=$(ssh -n $node "hostname --ip-address")
 sed -i "s/$node/$ip/" $TRACES_OUTPUT/sysstat.txt
 done < $HADOOP_PREFIX/conf/slaves

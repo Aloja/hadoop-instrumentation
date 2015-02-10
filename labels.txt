@@ -1,10 +1,19 @@
 EVENT_TYPE
-0 2004 SYSSTAT - CPU User
-0 2005 SYSSTAT - CPU Nice
-0 2006 SYSSTAT - CPU System
-0 2007 SYSSTAT - CPU IOwait
-0 2008 SYSSTAT - CPU Steal
-0 2009 SYSSTAT - CPU Idle
+0 2004 CPU Usage - User (%)
+0 2005 CPU Usage - Nice (%)
+0 2006 CPU Usage - System (%)
+0 2007 CPU Usage - IOwait (%)
+0 2008 CPU Usage - Steal (%)
+0 2009 CPU Usage - Idle (%)
+0 2012 Page faults per second
+0 2013 Major Page faults per second
+0 2014 Pages freed per second
+0 2019 Mem KB free
+0 2020 Mem KB used
+0 2021 Mem used (%)
+0 2031 System Load Avg-1min
+0 2032 System Load Avg-5min
+0 2033 System Load Avg-15min
 
 EVENT_TYPE
 0 11111 JobTracker
