@@ -70,6 +70,12 @@ package { ['landscape-client', 'landscape-common']:
 }
 
 
+# Remove motd message
+file { '/home/vagrant/.hushlogin':
+    ensure => present,
+}
+
+
 # Link mounted folder to home for easier access
 file { '/home/vagrant/workspace':
     ensure => link,
