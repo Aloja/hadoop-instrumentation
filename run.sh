@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -o errexit  # Exit immediately on non-zero status
 set -o nounset  # Treat unset variables as an error
-set -o xtrace   # Debug mode: display the command and its expanded arguments
+#set -o xtrace   # Debug mode: display the command and its expanded arguments
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
+echo "##################################################"
+echo "### CHECKING SNIFFER #############################"
+echo "##################################################"
 # Try to change permission
 while read node
 do
@@ -23,6 +26,9 @@ Please execute as root:
 exit 1; }
 done < $HADOOP_PREFIX/conf/slaves
 
+echo "##################################################"
+echo "### COPYING HADOOP CONFIG ########################"
+echo "##################################################"
 # Copy hadoop config to all nodes
 while read node
 do
@@ -30,24 +36,18 @@ scp ${CONFIG_HADOOP}/* ${node}:${HADOOP_PREFIX}/conf/
 done < ${CONFIG_HADOOP}/slaves
 
 
-# DEPRECATED
-#set capabilities en el cluster de minerva
-#while read node
-#do
-#ssh $node <<ENDSSH
-#sudo setcap_sniffer
-#ENDSSH
-#done < $HADOOP_PREFIX/conf/slaves
-
+echo "##################################################"
+echo "### CLEANING HADOOP CLUSTER ######################"
+echo "##################################################"
 #Stopping Cluster DFS & MapRed
-$HADOOP_PREFIX/bin/stop-mapred.sh
-$HADOOP_PREFIX/bin/stop-dfs.sh
+$HADOOP_PREFIX/bin/stop-all.sh
 
-echo "### CLEANING HADOOP CLUSTER ###########################"
 #Limpiando hadoop cluster y temporales en distribuido...
 while read node
 do
 ssh $node <<ENDSSH
+killall -9 sar
+killall -2 sniffer
 rm -rf $EXTRAE_DIR/*
 rm -f $HADOOP_PREFIX/hs_err_pid*.log
 rm -rf $HADOOP_PREFIX/logs/*
@@ -57,14 +57,13 @@ mkdir -p $EXTRAE_DIR
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
-#Moving to Hadoop home
-wtgb=$PWD
-cd $HADOOP_PREFIX
 #Formateando DFS...
-bin/hadoop namenode -format
+$HADOOP_PREFIX/bin/hadoop namenode -format
 sleep 5
 
-echo "### STARTING SYSSTAT ###########################"
+echo "##################################################"
+echo "### STARTING SYSSTAT #############################"
+echo "##################################################"
 while read node
 do
 ssh $node <<ENDSSH
@@ -72,36 +71,31 @@ sar -o $EXTRAE_DIR/sysstat.sar 1 >/dev/null 2>&1 &
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
-echo "### STARTING HADOOP CLUSTER ###########################"
-#Iniciando Cluster DFS
-bin/start-dfs.sh
+echo "##################################################"
+echo "### STARTING HADOOP CLUSTER ######################"
+echo "##################################################"
+#Iniciando Hadoop
+$HADOOP_PREFIX/bin/start-all.sh
 sleep 5
 
 #Moviendo datos al DFS...
-bin/hadoop fs -put conf input
+$HADOOP_PREFIX/bin/hadoop fs -put $HADOOP_PREFIX/conf input
 sleep 5
 
-#Iniciando Cluster MapRed
-bin/start-mapred.sh
+echo "##################################################"
+echo "### EXECUTING OVER HADOOP CLUSTER ################"
+echo "##################################################"
+$HADOOP_PREFIX/bin/hadoop jar $HADOOP_JAR_EXAMPLES grep input output 'dfs[a-z.]+'
 sleep 5
 
-echo "### EXECUTING OVER HADOOP CLUSTER #####################"
-#Exec Hadoop
-bin/hadoop jar $HADOOP_JAR_EXAMPLES grep input output 'dfs[a-z.]+'
-sleep 5
+echo "##################################################"
+echo "### STOPPING HADOOP CLUSTER ######################"
+echo "##################################################"
+$HADOOP_PREFIX/bin/stop-all.sh
 
-#Exec apiDetection
-#bash /home/smendoza/lightness/hadoopextrae/run-apiDetection.sh
-#sleep 5
-
-echo "### STOPPING HADOOP CLUSTER ###########################"
-#Stopping Cluster DFS & MapRed
-bin/stop-mapred.sh
-bin/stop-dfs.sh
-
-cd $wtgb
-
-echo "### STOPPING SYSSTAT ###########################"
+echo "##################################################"
+echo "### STOPPING SYSSTAT #############################"
+echo "##################################################"
 while read node
 do
 ssh $node <<ENDSSH
@@ -109,15 +103,13 @@ killall -9 sar
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
-#Kill the sniffer on all the Hadoop nodes
-filter="ps aux  | grep sniffer | grep -v grep | grep -v sh | tr -s ' '  | cut -d' ' -f2"
+echo "##################################################"
+echo "### STOPPING SNIFFER #############################"
+echo "##################################################"
 while read node
 do
 ssh $node <<ENDSSH
-for sniffer_pid in \`$filter\`
-do
-kill -2 \$sniffer_pid
-done
+killall -2 sniffer
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
