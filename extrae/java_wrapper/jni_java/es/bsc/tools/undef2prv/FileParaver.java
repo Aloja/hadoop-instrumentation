@@ -3,6 +3,7 @@ package es.bsc.tools.undef2prv;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -33,13 +34,27 @@ public class FileParaver {
 
     public void loadOnMemoryPrv(String filePath) throws FileNotFoundException {
 
+        int total_lines = 0;
+        try {
+            LineNumberReader lnr = new LineNumberReader(new FileReader(filePath));
+            lnr.skip(Long.MAX_VALUE);
+            total_lines = lnr.getLineNumber();
+            lnr.close();
+        } catch (IOException ex) {}
+
+        int current_line = 0;
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
         this.filePath = filePath;
         String line;
         try {
             while ((line = reader.readLine()) != null) {
                 loadLine(line);
+                current_line++;
+                if (current_line % 100000 == 0) {
+                    System.out.format("Lines read: %s/%s (%.2f%%)%n", current_line, total_lines, ((current_line/(double)total_lines)*100));
+                }
             }
+            System.out.format("Lines read: %s/%s (%.2f%%)%n", current_line, total_lines, ((current_line/(double)total_lines)*100));
         } catch (IOException ex) {
             //ERROR LEYENDO EL FICHERO...
         }
