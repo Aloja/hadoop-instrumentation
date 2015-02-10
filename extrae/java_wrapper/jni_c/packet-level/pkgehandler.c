@@ -105,9 +105,9 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	values_antes[1] = values[0]; //(extrae_value_t) pt.ip_src.s_addr; //values[0];
 	values_antes[2] = values[1]; //(extrae_value_t) pt.port_src; // values[1];
 	values_antes[3] = (extrae_value_t) pt.pckt_len;
-	Extrae_nevent(4, types_antes,values_antes);
+	// Extrae_nevent(4, types_antes,values_antes);
 	Extrae_nevent(9, types, values);
-	Extrae_nevent(4, types_antes,values_antes);
+	// Extrae_nevent(4, types_antes,values_antes);
 	//Extrae_flush();
 
 	if (send){
