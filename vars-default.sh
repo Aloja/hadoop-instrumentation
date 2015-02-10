@@ -24,6 +24,7 @@ export LD_LIBRARY_PATH=$LNESS_HOME/lib
 export HADOOP_PREFIX="${BASE_DIR}/hadoop-build"
 export HADOOP_JAR_EXAMPLES="${HADOOP_PREFIX}/hadoop-examples-*.jar"
 export HADOOP_SRC="${BASE_DIR}/hadoop-src"
+export HADOOP_JOBS="${BASE_DIR}/jobs"
 
 export JNI_H_DEST="${BASE_DIR}/extrae/java_wrapper/jni_c/include"
 

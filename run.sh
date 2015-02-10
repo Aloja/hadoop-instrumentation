@@ -5,6 +5,18 @@ set -o nounset  # Treat unset variables as an error
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
+# Check job parameter
+RUN_JOB="${HADOOP_JOBS}/default.sh"
+if [ $# -ge 1 ]; then
+    if [ -e "${HADOOP_JOBS}/${1}.sh" ]; then
+        RUN_JOB="${HADOOP_JOBS}/${1}.sh"
+    else
+        echo "ERROR: ${HADOOP_JOBS}/${1}.sh not found!"
+        exit 1
+    fi
+fi
+
+
 echo "##################################################"
 echo "### CHECKING SNIFFER #############################"
 echo "##################################################"
@@ -85,7 +97,9 @@ sleep 5
 echo "##################################################"
 echo "### EXECUTING OVER HADOOP CLUSTER ################"
 echo "##################################################"
-$HADOOP_PREFIX/bin/hadoop jar $HADOOP_JAR_EXAMPLES grep input output 'dfs[a-z.]+'
+# Run the hadoop job
+echo "Executing ${RUN_JOB}"
+. "${RUN_JOB}"
 sleep 5
 
 echo "##################################################"
