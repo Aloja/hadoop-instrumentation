@@ -58,33 +58,8 @@ apt::source { 'ubuntu_trusty-security':
 }
 
 
-# Java
-apt::ppa { 'ppa:webupd8team/java': }
-exec { 'set-licence-selected':
-    command => 'echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections',
-    before => Package['java'],
-    subscribe => Apt::Ppa['ppa:webupd8team/java'],
-    refreshonly => true,
-}
-exec { 'set-licence-seen':
-    command => 'echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections',
-    before => Package['java'],
-    subscribe => Apt::Ppa['ppa:webupd8team/java'],
-    refreshonly => true,
-}
-package { ['java']:
-    name => 'oracle-java7-installer',
-    ensure => installed,
-    require => Apt::Ppa['ppa:webupd8team/java'],
-}
-package { ['ant']:
-    ensure => installed,
-    require => Package['java'],
-}
-
-
 # Install various packages
-Apt::Source <| |> -> package { ['build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'screen', 'sysstat', 'unzip', 'vim']:
+Apt::Source <| |> -> package { ['ant', 'build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'openjdk-7-jdk', 'screen', 'sysstat', 'unzip', 'vim']:
     ensure => installed,
 }
 
