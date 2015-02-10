@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -o errexit  # Exit immediately on non-zero status
 set -o nounset  # Treat unset variables as an error
-set -o xtrace   # Debug mode: display the command and its expanded arguments
+#set -o xtrace   # Debug mode: display the command and its expanded arguments
 
 . "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/vars.sh
 
 
 
-#############################
-### POST-PROCESS-DUMPINGD ###
-#############################
+echo "##################################################"
+echo "### POST PROCESS DUMPINGD ########################"
+echo "##################################################"
 
 #dumping: filtrado del volcado del lsof
 while read node
@@ -40,9 +40,9 @@ done
 
 
 
-##################################
-### POST-PROCESS-EXTRAE-TRACES ###
-##################################
+echo "##################################################"
+echo "### POST PROCESS EXTRAE TRACES ###################"
+echo "##################################################"
 
 #get extrae traces from hadoop nodes
 rm -f $TRACES_OUTPUT/distributed-merge/TRACE.mpits
@@ -69,9 +69,9 @@ ${BIN_DIR}/mpi2prv -no-syn -f $TRACES_OUTPUT/distributed-merge/TRACE.mpits -o $T
 
 
 
-############################
-### POST-PROCESS-SYSSTAT ###
-############################
+echo "##################################################"
+echo "### POST PROCESS SYSSTAT #########################"
+echo "##################################################"
 
 rm -f $TRACES_OUTPUT/sysstat*
 while read node
@@ -84,9 +84,9 @@ done < $HADOOP_PREFIX/conf/slaves
 
 
 
-##############################
-### POST-PROCESS-UNDEF2PRV ###
-##############################
+echo "##################################################"
+echo "### POST PROCESS UNDEF2PRV #######################"
+echo "##################################################"
 
 #clean log files
 rm -f $TRACES_OUTPUT/undef2prv.log*
