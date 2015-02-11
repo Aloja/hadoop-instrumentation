@@ -292,8 +292,16 @@ public class RecordNEvent {
             c3 = true;
         }
 
+        String g = this.getSizeRawPcket();
+        String h = ner.getSizeRawPcket();
+        boolean c4 = false;
+        if (g != null && h != null) {
+            c4 = g.equals(h);
+        } else {
+            c4 = true;
+        }
 
-        if (c1 && c2 && c3) {
+        if (c1 && c2 && c3 && c4) {
             retval = true;
         }
 
