@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -28,10 +29,15 @@ public class Undef2prv {
         String fileSysstat = args[4]; // sysstat.txt file
 
         //log4j output log
-        String confFile = System.getenv("LOG4J_CONFFILE");
         System.setProperty("TRACES_OUTPUT", System.getenv("TRACES_OUTPUT"));
-        PropertyConfigurator.configure(confFile);
-        System.out.println("Logfile en " + confFile);
+        String confFile = System.getenv("LOG4J_CONFFILE");
+        if (confFile != null) {
+            PropertyConfigurator.configure(confFile);
+            System.out.println("Log configured from " + confFile);
+        } else {
+            System.out.println("Log not configured, disabling...");
+            logger.setLevel(Level.OFF);
+        }
 
         try {
 

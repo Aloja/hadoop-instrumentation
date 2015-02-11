@@ -93,4 +93,4 @@ rm -f $TRACES_OUTPUT/undef2prv.log*
 
 #execute the undef2prv post-processing
 #procesa els ports i els genera al output
-${JAVA} -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TRACES_OUTPUT/distributed-merge/dumping-host-port-pid $TRACES_OUTPUT/mergeoutput.prv $TRACES_OUTPUT/mergeoutput.row $TRACES_OUTPUT/mergeoutput.pcf $TRACES_OUTPUT/sysstat.txt
+${JAVA} -Xmx1536m -cp "${LIB_DIR}/*" es.bsc.tools.undef2prv.Undef2prv $TRACES_OUTPUT/distributed-merge/dumping-host-port-pid $TRACES_OUTPUT/mergeoutput.prv $TRACES_OUTPUT/mergeoutput.row $TRACES_OUTPUT/mergeoutput.pcf $TRACES_OUTPUT/sysstat.txt
