@@ -18,6 +18,9 @@ void generate_filter(char *filter, int ports[], int nports);
  */
 int sniffing(int inbound, int ports[], int nports) {
 
+	// print libpcap version
+	printf("%s\n", pcap_lib_version());
+
 	//Extrae_init();
 
 	char *dev = NULL;
@@ -54,9 +57,6 @@ int sniffing(int inbound, int ports[], int nports) {
 	pcap_set_buffer_size(descr_receiving_in, 524288);
 	pcap_set_buffer_size(descr_receiving_out, 524288);
 
-	pcap_setdirection(descr_receiving_in, PCAP_D_IN);
-	pcap_setdirection(descr_receiving_out, PCAP_D_OUT);
-
 	if(pcap_activate(descr_receiving_in)!=0){
 		printf("pcap_activate(): %s\n", pcap_geterr(descr_receiving_in));
                 printf("\npcap_activate(): LD_LIBRARY_PATH=%s\n", getenv("LD_LIBRARY_PATH"));
@@ -65,6 +65,21 @@ int sniffing(int inbound, int ports[], int nports) {
 	if(pcap_activate(descr_receiving_out)!=0){
                 printf("pcap_activate(): %s\n", pcap_geterr(descr_receiving_out));
                 printf("\npcap_activate(): LD_LIBRARY_PATH=%s\n", getenv("LD_LIBRARY_PATH"));
+		exit(-1);
+	}
+
+	char error_prefix[80];
+	sprintf(error_prefix,"Error calling pcap_setdirection");
+	int setdirection_in_result = pcap_setdirection(descr_receiving_in, PCAP_D_IN);
+	if (setdirection_in_result != 0) {
+		printf("pcap_setdirection in result: %d\n", setdirection_in_result);
+		pcap_perror(descr_receiving_in, error_prefix);
+		exit(-1);
+	}
+	int setdirection_out_result = pcap_setdirection(descr_receiving_out, PCAP_D_OUT);
+	if (setdirection_out_result != 0) {
+		printf("pcap_setdirection out result: %d\n", setdirection_out_result);
+		pcap_perror(descr_receiving_out, error_prefix);
 		exit(-1);
 	}
 
