@@ -301,7 +301,51 @@ public class RecordNEvent {
             c4 = true;
         }
 
-        if (c1 && c2 && c3 && c4) {
+        String i = this.getSizeApp();
+        String j = ner.getSizeApp();
+        boolean c5 = false;
+        if (i != null && j != null) {
+            c5 = i.equals(j);
+        } else {
+            c5 = true;
+        }
+
+        // Compare inverse src/dest ip&port
+        String k = this.getSrcIp();
+        String l = ner.getDstIp();
+        boolean c6 = false;
+        if (k != null && l != null) {
+            c6 = k.equals(l);
+        } else {
+            c6 = true;
+        }
+        String m = this.getDstIp();
+        String n = ner.getSrcIp();
+        boolean c7 = false;
+        if (m != null && n != null) {
+            c7 = m.equals(n);
+        } else {
+            c7 = true;
+        }
+
+        String o = this.getSrcPort();
+        String p = ner.getDstPort();
+        boolean c8 = false;
+        if (o != null && p != null) {
+            c8 = o.equals(p);
+        } else {
+            c8 = true;
+        }
+        String q = this.getDstPort();
+        String r = ner.getSrcPort();
+        boolean c9 = false;
+        if (q != null && r != null) {
+            c9 = q.equals(r);
+        } else {
+            c9 = true;
+        }
+
+        if (c1 && c2 && c3 && c4 && c5 && c6 && c7 && c8 && c9) {
             retval = true;
         }
 
