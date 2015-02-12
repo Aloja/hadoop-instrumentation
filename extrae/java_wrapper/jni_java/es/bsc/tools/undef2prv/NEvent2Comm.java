@@ -80,8 +80,12 @@ public class NEvent2Comm {
         eRComm.CommDstThread = nEvDst.Thread; //Communication Destination: THREAD
         eRComm.CommDstTimeLogical = nEvDst.getTime(); //Communication Destination: tLogical
         eRComm.CommDstTimePhysical = nEvDst.getTime(); //Communication Destination: tPhysical
-        eRComm.CommSize = nEvSrc.getSizeApp(); //Communication sizeAcumulada
-        eRComm.CommTag = RecordComm.DEFAULT_TAG;
+        // eRComm.CommSize = nEvSrc.getSizeApp(); //Communication sizeAcumulada
+        // eRComm.CommTag = RecordComm.DEFAULT_TAG;
+
+        // DEBUG: Added seq and ack to extrae comm to allow packet identification in paraver
+        eRComm.CommSize = nEvSrc.getTcpNSeq();
+        eRComm.CommTag = nEvSrc.getNAck();
 
         //<DEBUGGING....>
         //SRC_PORT ANALYSIS
