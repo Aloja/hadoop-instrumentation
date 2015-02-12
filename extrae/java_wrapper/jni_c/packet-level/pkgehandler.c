@@ -66,6 +66,8 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	pt.th_seq = ntohl(tcp->th_seq); // sequence number
 	pt.th_ack = ntohl(tcp->th_ack); // acknowledgement number
 	payload_size = pt.pckt_len - (SLL_HDR_LEN + size_ip + size_tcp);
+	char ip_src_str[INET_ADDRSTRLEN];
+	char ip_dst_str[INET_ADDRSTRLEN];
 	if (*inbound) send = 0;
 	else send = 1;
 	if (send) {
@@ -73,11 +75,15 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 		values[1] = (extrae_value_t) pt.port_src;
 		values[2] = (extrae_value_t) pt.ip_dst.s_addr;
 		values[3] = (extrae_value_t) pt.port_dst;
+		inet_ntop(AF_INET, &pt.ip_src, ip_src_str, INET_ADDRSTRLEN);
+		inet_ntop(AF_INET, &pt.ip_dst, ip_dst_str, INET_ADDRSTRLEN);
 	} else {
 		values[0] = (extrae_value_t) pt.ip_dst.s_addr;
 		values[1] = (extrae_value_t) pt.port_dst;
 		values[2] = (extrae_value_t) pt.ip_src.s_addr;
 		values[3] = (extrae_value_t) pt.port_src;
+		inet_ntop(AF_INET, &pt.ip_dst, ip_src_str, INET_ADDRSTRLEN);
+		inet_ntop(AF_INET, &pt.ip_src, ip_dst_str, INET_ADDRSTRLEN);
 	}
 	values[4] = (extrae_value_t) pt.pckt_len;
 	values[5] = (extrae_value_t) payload_size;
@@ -110,11 +116,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	// Extrae_nevent(4, types_antes,values_antes);
 	//Extrae_flush();
 
-	if (send){
-		printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, inet_ntoa(pt.ip_src), values[1], inet_ntoa(pt.ip_dst), values[3]);
-	}else{
-		printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, inet_ntoa(pt.ip_dst), values[1], inet_ntoa(pt.ip_src), values[3]);
-	}
+	printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, ip_src_str, values[1], ip_dst_str, values[3]);
 
 	struct timeval arr_time;
 	double tiempo;
