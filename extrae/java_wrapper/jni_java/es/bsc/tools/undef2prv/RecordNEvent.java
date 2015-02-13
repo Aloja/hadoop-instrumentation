@@ -28,6 +28,8 @@ public class RecordNEvent {
     public static final String KEY_NUM_ACK = "77777";
     public static final String KEY_FLAGS = "77778";
     public static final String KEY_SEND = "77779";
+    public static final String KEY_TIME_PCAP = "77780";
+    public static final String KEY_TIME_EVENT = "77781";
     public static final String KEY_NODE_IP_sin_addr = "88880";
     public static final String KEY_NODE_TYPE = "88881";
     public static final String KEY_NODE_DAEMON_PID = "88882";
@@ -185,6 +187,24 @@ public class RecordNEvent {
 
     public String getTimestamp() {
         return RecordEventsHM.get(RecordNEvent.KEY_NODE_SYNC);
+    }
+
+    public Long getTimePcap() {
+        return Long.parseLong(RecordEventsHM.get(RecordNEvent.KEY_TIME_PCAP));
+    }
+
+    public Long getTimeEvent() {
+        return Long.parseLong(RecordEventsHM.get(RecordNEvent.KEY_TIME_EVENT));
+    }
+
+    /**
+     * Returns the tsc time of this event taking into account the delay between
+     * the packet capture and the extrae event of this packet.
+     */
+    public String getTimeNetworkSynced() {
+        Long tsc = Long.parseLong(this.getTime());
+        Long diff = (this.getTimeEvent() - this.getTimePcap()) * 1000L;
+        return Long.toString(tsc-diff);
     }
 
     public boolean isSyn() {

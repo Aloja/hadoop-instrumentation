@@ -82,16 +82,16 @@ public class NEvent2Comm {
         eRComm.CommSrcApplication = DataOnMemory.getNTaskSender(nEvSrc); //nEvSrc.Application; //Communication Source: APPLICATION
         eRComm.CommSrcProcess = nEvSrc.Process; //Communication Source: PROCESS
         eRComm.CommSrcThread = nEvSrc.Thread; //Communication Source: THREAD
-        eRComm.CommSrcTimeLogical = nEvSrc.getTime(); //Communication Destination: tLogical
-        eRComm.CommSrcTimePhysical = nEvSrc.getTime(); //Communication Destination: tPhysical
+        eRComm.CommSrcTimeLogical = nEvSrc.getTimeNetworkSynced(); //Communication Destination: tLogical
+        eRComm.CommSrcTimePhysical = nEvSrc.getTimeNetworkSynced(); //Communication Destination: tPhysical
 
         //Destination information
         eRComm.CommDstCpu = nEvDst.Cpu; //Communication Source: CPU
         eRComm.CommDstApplication = DataOnMemory.getNTaskReceiver(nEvSrc); //nEvDst.Application; //Communication Destination: APPLICATION
         eRComm.CommDstProcess = nEvDst.Process;//Communication Destination: PROCESS
         eRComm.CommDstThread = nEvDst.Thread; //Communication Destination: THREAD
-        eRComm.CommDstTimeLogical = nEvDst.getTime(); //Communication Destination: tLogical
-        eRComm.CommDstTimePhysical = nEvDst.getTime(); //Communication Destination: tPhysical
+        eRComm.CommDstTimeLogical = nEvDst.getTimeNetworkSynced(); //Communication Destination: tLogical
+        eRComm.CommDstTimePhysical = nEvDst.getTimeNetworkSynced(); //Communication Destination: tPhysical
         // eRComm.CommSize = nEvSrc.getSizeApp(); //Communication sizeAcumulada
         // eRComm.CommTag = RecordComm.DEFAULT_TAG;
 
