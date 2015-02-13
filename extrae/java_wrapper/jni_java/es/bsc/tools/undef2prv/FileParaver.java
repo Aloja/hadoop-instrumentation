@@ -143,10 +143,10 @@ public class FileParaver {
             RecordNEvent ner = new RecordNEvent(line);
 
 //            if (ner.isSyn() || ner.isFin() || ner.isAck() || ner.getSizeApp().equals("0")) {
-            if (ner.isSyn() || ner.isFin()) { // || !ner.isAck()) {
-                //aquest "record trace" no s'incloura al definitiu
-                return;
-            }
+            // if (ner.isSyn() || ner.isFin()) { // || !ner.isAck()) {
+            //     //aquest "record trace" no s'incloura al definitiu
+            //     return;
+            // }
 
             if (line.contains(":" + RecordNEvent.KEY_NODE_IP_sin_addr + ":") || line.contains(":" + RecordNEvent.KEY_NODE_TYPE + ":")) {
                 //NEvent de Hadoop-Demons (88880, 88881, ...)
