@@ -13,7 +13,7 @@
 #define SIZE_ETHERNET 14
 #define SLL_HDR_LEN     16              /* total header length */
 
-extrae_type_t types[10] = {77770, 77771, 77772, 77773, 77774, 77775, 77776, 77777, 77778, 77779};
+extrae_type_t types[12] = {77770, 77771, 77772, 77773, 77774, 77775, 77776, 77777, 77778, 77779, 77780, 77781};
 
 // 7770 -> LOCAL IP
 // 7771 -> LOCAL PORT
@@ -35,7 +35,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	unsigned int payload_size;
 	u_int size_ip;
 	u_int size_tcp;
-	extrae_value_t values[10];
+	extrae_value_t values[12];
 
 	//yolandab
 	int fd;
@@ -106,23 +106,28 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	}
 
 	//Generate state 
-	extrae_type_t types_antes[4] = {5050, 5051, 5052, 5053};  // Aquests events no estan descrits en el paraver
-	extrae_value_t values_antes[4]; // = {0,0,0,0};
-	values_antes[0] = (extrae_value_t) send;
-	values_antes[1] = values[0]; //(extrae_value_t) pt.ip_src.s_addr; //values[0];
-	values_antes[2] = values[1]; //(extrae_value_t) pt.port_src; // values[1];
-	values_antes[3] = (extrae_value_t) pt.pckt_len;
+	// extrae_type_t types_antes[4] = {5050, 5051, 5052, 5053};  // Aquests events no estan descrits en el paraver
+	// extrae_value_t values_antes[4]; // = {0,0,0,0};
+	// values_antes[0] = (extrae_value_t) send;
+	// values_antes[1] = values[0]; //(extrae_value_t) pt.ip_src.s_addr; //values[0];
+	// values_antes[2] = values[1]; //(extrae_value_t) pt.port_src; // values[1];
+	// values_antes[3] = (extrae_value_t) pt.pckt_len;
 	// Extrae_nevent(4, types_antes,values_antes);
-	Extrae_nevent(10, types, values);
 	// Extrae_nevent(4, types_antes,values_antes);
 	//Extrae_flush();
 
-	printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, ip_src_str, values[1], ip_dst_str, values[3]);
-
 	struct timeval arr_time;
-	double tiempo;
+	unsigned long long tiempo_actual;
 	gettimeofday(&arr_time, NULL);   // Instante inicial
-	tiempo = arr_time.tv_sec*1000 + arr_time.tv_usec/1000;
+	tiempo_actual = 1000000ull*arr_time.tv_sec + arr_time.tv_usec;
+	unsigned long long tiempo_pcap;
+	tiempo_pcap = 1000000ull*pkthdr->ts.tv_sec + pkthdr->ts.tv_usec;
+	values[10] = tiempo_pcap;
+	values[11] = tiempo_actual;
+
+	Extrae_nevent(12, types, values);
+
+	printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, ip_src_str, values[1], ip_dst_str, values[3]);
 
 	//double secs_acotados
 
@@ -130,7 +135,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	printf("arr_time.usec: %d\n",arr_time.tv_usec);
 
 	char str_nevent[1000];
-	sprintf(str_nevent, "2:0:1:%llu:1:%llu:77770:%llu:77771:%llu:77772:%llu:77773:%llu:77774:%llu:77775:%llu:77776:%llu:77777:%llu:77778:%llu:77779:%llu", getpid(),tiempo,values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9]);
+	sprintf(str_nevent, "2:0:1:%llu:1:%llu:77770:%llu:77771:%llu:77772:%llu:77773:%llu:77774:%llu:77775:%llu:77776:%llu:77777:%llu:77778:%llu:77779:%llu:77780:%llu:77781:%llu", getpid(),tiempo_actual,values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
 	printf("wala-nevent-> %s\n", str_nevent);
 	fflush(stdout);
 
