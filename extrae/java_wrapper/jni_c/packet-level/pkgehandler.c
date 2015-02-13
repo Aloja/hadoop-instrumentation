@@ -13,7 +13,7 @@
 #define SIZE_ETHERNET 14
 #define SLL_HDR_LEN     16              /* total header length */
 
-extrae_type_t types[9] = {77770, 77771, 77772, 77773, 77774, 77775, 77776, 77777, 77778};
+extrae_type_t types[10] = {77770, 77771, 77772, 77773, 77774, 77775, 77776, 77777, 77778, 77779};
 
 // 7770 -> LOCAL IP
 // 7771 -> LOCAL PORT
@@ -35,7 +35,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	unsigned int payload_size;
 	u_int size_ip;
 	u_int size_tcp;
-	extrae_value_t values[9];
+	extrae_value_t values[10];
 
 	//yolandab
 	int fd;
@@ -90,6 +90,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	values[6] = (extrae_value_t) pt.th_seq;
 	values[7] = (extrae_value_t) pt.th_ack;
 	values[8] = (extrae_value_t) tcp->th_flags;
+	values[9] = (extrae_value_t) send;
 
 	//printf("llego aqui sin problemas! %s:%d (%lu) -> %s:%d (%lu)\n", inet_ntoa(pt.ip_src), values[1], ntohl(pt.ip_src.s_addr), inet_ntoa(pt.ip_dst), values[3], ntohl(pt.ip_dst.s_addr));fflush(stdout);
 
@@ -112,7 +113,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	values_antes[2] = values[1]; //(extrae_value_t) pt.port_src; // values[1];
 	values_antes[3] = (extrae_value_t) pt.pckt_len;
 	// Extrae_nevent(4, types_antes,values_antes);
-	Extrae_nevent(9, types, values);
+	Extrae_nevent(10, types, values);
 	// Extrae_nevent(4, types_antes,values_antes);
 	//Extrae_flush();
 
@@ -129,7 +130,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 	printf("arr_time.usec: %d\n",arr_time.tv_usec);
 
 	char str_nevent[1000];
-	sprintf(str_nevent, "2:0:1:%llu:1:%llu:77770:%llu:77771:%llu:77772:%llu:77773:%llu:77774:%llu:77775:%llu:77776:%llu:77777:%llu:77778:%llu", getpid(),tiempo,values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8]);
+	sprintf(str_nevent, "2:0:1:%llu:1:%llu:77770:%llu:77771:%llu:77772:%llu:77773:%llu:77774:%llu:77775:%llu:77776:%llu:77777:%llu:77778:%llu:77779:%llu", getpid(),tiempo,values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9]);
 	printf("wala-nevent-> %s\n", str_nevent);
 	fflush(stdout);
 

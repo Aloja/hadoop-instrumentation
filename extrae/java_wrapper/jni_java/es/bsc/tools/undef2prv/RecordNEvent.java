@@ -27,6 +27,7 @@ public class RecordNEvent {
     public static final String KEY_NUM_SEQ = "77776";
     public static final String KEY_NUM_ACK = "77777";
     public static final String KEY_FLAGS = "77778";
+    public static final String KEY_SEND = "77779";
     public static final String KEY_NODE_IP_sin_addr = "88880";
     public static final String KEY_NODE_TYPE = "88881";
     public static final String KEY_NODE_DAEMON_PID = "88882";
@@ -168,6 +169,10 @@ public class RecordNEvent {
 
     public String getFlags() {
         return RecordEventsHM.get(RecordNEvent.KEY_FLAGS);
+    }
+
+    public Boolean getSend() {
+        return RecordEventsHM.get(RecordNEvent.KEY_SEND).equals("1");
     }
 
     public String getNodeIp() {
@@ -345,7 +350,16 @@ public class RecordNEvent {
             c9 = true;
         }
 
-        if (c1 && c2 && c3 && c4 && c5 && c6 && c7 && c8 && c9) {
+        Boolean s = this.getSend();
+        Boolean t = ner.getSend();
+        boolean c10 = false;
+        if (s != null && t != null) {
+            c10 = (s != t);
+        } else {
+            c10 = true;
+        }
+
+        if (c1 && c2 && c3 && c4 && c5 && c6 && c7 && c8 && c9 && c10) {
             retval = true;
         }
 

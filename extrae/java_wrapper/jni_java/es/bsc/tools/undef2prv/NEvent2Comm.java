@@ -16,6 +16,17 @@ public class NEvent2Comm {
 
         RecordNEvent[] sorted = new RecordNEvent[2];
 
+        if (nev1.getSend()) {
+            sorted[0] = nev1;
+            sorted[1] = nev2;
+        } else {
+            sorted[0] = nev2;
+            sorted[1] = nev1;
+        }
+
+        return sorted;
+
+        /*
         BigInteger t1 = new BigInteger(nev1.getTime());
         BigInteger t2 = new BigInteger(nev2.getTime());
         if (t1.compareTo(t2) <= 0) {
@@ -30,7 +41,8 @@ public class NEvent2Comm {
             //UNKNOWN
             return null;
         }
-        
+        */
+
         /*
          *  long t1 = Long.parseLong(nev1.getTime());
         long t2 = Long.parseLong(nev2.getTime());
