@@ -5,9 +5,11 @@ DATA_HDFS=/HiBench
 INPUT_HDFS=${DATA_HDFS}/Sort/Input
 OUTPUT_HDFS=${DATA_HDFS}/Sort/Output
 
-# 250MB
-DATASIZE=250000000
-NUM_MAPS=4
+# sort 400MB total
+# for prepare (per node) - 200MB/node
+DATASIZE=200000000
+NUM_MAPS=2
+# for running (in total)
 NUM_REDS=4
 
 $HADOOP_EXECUTABLE jar $HADOOP_EXAMPLES_JAR randomtextwriter \
