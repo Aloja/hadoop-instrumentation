@@ -90,10 +90,6 @@ echo "##################################################"
 $HADOOP_PREFIX/bin/start-all.sh
 sleep 5
 
-#Moviendo datos al DFS...
-$HADOOP_PREFIX/bin/hadoop fs -put $HADOOP_PREFIX/conf input
-sleep 5
-
 echo "##################################################"
 echo "### EXECUTING OVER HADOOP CLUSTER ################"
 echo "##################################################"
