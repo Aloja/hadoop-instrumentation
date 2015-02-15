@@ -127,12 +127,7 @@ void callback(u_char *inbound, const struct pcap_pkthdr* pkthdr, const u_char* p
 
 	Extrae_nevent(12, types, values);
 
-	printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote:  %s:%d\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, ip_src_str, values[1], ip_dst_str, values[3]);
-
-	//double secs_acotados
-
-	printf("arr_time.sec: %d\n",arr_time.tv_sec);
-	printf("arr_time.usec: %d\n",arr_time.tv_usec);
+	printf("Generating event: %s, #seq: %llu, #ack: %lld, link size: %d, app size: %d, local: %s:%d, remote: %s:%d, flags:%s%s%s%s%s%s%s%s, tiempo_pcap: %llu, tiempo_actual: %llu\n", (send == 0) ? "rcv" : ((send == 1) ? "snd" : "amb"), pt.th_seq, pt.th_ack, pt.pckt_len, payload_size, ip_src_str, values[1], ip_dst_str, values[3], (values[8]&TH_FIN ? " FIN" : ""), (values[8]&TH_SYN ? " SYN" : ""), (values[8]&TH_RST ? " RST" : ""), (values[8]&TH_PUSH ? " PUSH" : ""), (values[8]&TH_ACK ? " ACK" : ""), (values[8]&TH_URG ? " URG" : ""), (values[8]&TH_ECE ? " ECE" : ""), (values[8]&TH_CWR ? " CWR" : ""), tiempo_pcap, tiempo_actual);
 
 	char str_nevent[1000];
 	sprintf(str_nevent, "2:0:1:%llu:1:%llu:77770:%llu:77771:%llu:77772:%llu:77773:%llu:77774:%llu:77775:%llu:77776:%llu:77777:%llu:77778:%llu:77779:%llu:77780:%llu:77781:%llu", getpid(),tiempo_actual,values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
