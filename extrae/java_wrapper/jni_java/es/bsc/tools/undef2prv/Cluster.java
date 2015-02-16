@@ -1,10 +1,12 @@
 package es.bsc.tools.undef2prv;
 
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +18,17 @@ import java.util.Set;
 class Cluster {
 
     public HashMap<String, Node> nodes = new HashMap<>();
+
+    public static final Comparator<String> IP_COMPARATOR = new Comparator<String>() {
+        public int compare(String d1, String d2){
+            // Change ip endianness to allow integer comparison
+            int ip1 = ByteBuffer.wrap(BigInteger.valueOf(Long.parseLong(d1)).toByteArray()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+            int ip2 = ByteBuffer.wrap(BigInteger.valueOf(Long.parseLong(d2)).toByteArray()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+
+            // Order by ip
+            return Integer.valueOf(ip1).compareTo(Integer.valueOf(ip2));
+        }
+    };
 
     public void addDaemon(RecordNEvent ner) {
 
@@ -79,12 +92,15 @@ class Cluster {
         return retval;
     }
     
-        public ArrayList<String> getAllNodeIps() {
+    public ArrayList<String> getAllNodeIps() {
         ArrayList<String> ips = new ArrayList<>();
 
         for (Node n : this.nodes.values()) {
             ips.add(n.ip);
         }
+
+        // Order IPs
+        Collections.sort(ips, IP_COMPARATOR);
 
         return ips;
     }
@@ -143,8 +159,26 @@ class Cluster {
             ds.addAll(n.getDaemonsWithType(Daemon.NODE_ID_JCLIENT));
         }
 
-        // Order them by original app id (it's visually better)
-        Collections.sort(ds, Daemon.APP_COMPARATOR);
+        // Order them (it's visually better)
+        Collections.sort(ds, Daemon.VISUAL_COMPARATOR);
+
+        return ds;
+    }
+
+    public ArrayList<Daemon> getAllDaemonsWithParaverType(String paraver_type) {
+        // Get all daemons
+        ArrayList<Daemon> all_ds = this.getAllDaemons();
+
+        // Filter all the daemons and select only the ones that share the same "paraver type"
+        ArrayList<Daemon> ds = new ArrayList<Daemon>();
+        for (Daemon d : all_ds) {
+            if (d.getParaverType().equals(paraver_type)) {
+                ds.add(d);
+            }
+        }
+
+        // Order the remaining daemons
+        Collections.sort(ds, Daemon.VISUAL_COMPARATOR);
 
         return ds;
     }
@@ -208,4 +242,15 @@ class Cluster {
 
         return retval;
     }
+
+    public String getParaverCpu(Daemon daemon) {
+        ArrayList<String> node_ips = this.getAllNodeIps();
+        return Integer.toString(node_ips.indexOf(daemon.ip) + 1);
+    }
+
+    public String getParaverTask(Daemon daemon) {
+        ArrayList<Daemon> ds = this.getAllDaemonsWithParaverType(daemon.getParaverType());
+        return Integer.toString(ds.indexOf(daemon) + 1);
+    }
+
 }

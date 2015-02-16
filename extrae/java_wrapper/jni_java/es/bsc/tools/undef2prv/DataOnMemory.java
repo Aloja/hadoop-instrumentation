@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -36,6 +37,8 @@ public class DataOnMemory {
 //    public static HashMap<String, CPort> puertosConflictivosSize = new HashMap<>();
     public static String FILE_JC = "/tmp/smendoza/jc.pid";
     public static LinkedHashMap<String, ArrayList<Sysstat>> sysstats = new LinkedHashMap<>();
+
+    public static LinkedHashMap<String, ParaverResource> app_to_paraver_resource = new LinkedHashMap<String, ParaverResource>();
 
     public DataOnMemory() {
     }
@@ -328,6 +331,15 @@ public class DataOnMemory {
             Undef2prv.logger.debug("Assigning Daemon[ip=" + d.ip + ", pid=" + d.pid + ", type=" + d.type + "]");
             if (CommonFuncs.isNumeric(d.pid)) {
                 d.extraeNtask = Integer.toString(ntask);
+
+                ParaverResource prvres = new ParaverResource();
+                prvres.original_app = d.app;
+                prvres.cpu = DataOnMemory.hcluster.getParaverCpu(d);
+                prvres.app = d.getParaverType();
+                prvres.task = DataOnMemory.hcluster.getParaverTask(d);
+                prvres.thread = "1";
+                DataOnMemory.app_to_paraver_resource.put(prvres.original_app, prvres);
+
                 Undef2prv.logger.debug("Cluster NTASK[" + d.extraeNtask + "] ASSIGNED to DAEMON[ip:pid=" + d.ip + ":" + d.pid + "]");
                 ntask++;
                 /*
@@ -347,6 +359,10 @@ public class DataOnMemory {
                  }
                  */
             }
+        }
+
+        for (Map.Entry<String, ParaverResource> entry : DataOnMemory.app_to_paraver_resource.entrySet()) {
+            Undef2prv.logger.debug("ParaverResource assigned original_app=" + entry.getKey() + " " + entry.getValue());
         }
     }
 

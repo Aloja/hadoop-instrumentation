@@ -36,7 +36,7 @@ public class FileParaverRow {
             int threadCounter = 0;
 
             //LEVEL CPU SIZE X
-            String[] cpuNames = convertCpuNames();
+            String[] cpuNames = convertNodeIps();
             //System.out.println("convertCpuNames()->" + Arrays.toString(cpuNames));
             String p1 = String.format("LEVEL CPU SIZE %d\n", cpuNames.length);
             buffwrttr.write(p1);
@@ -47,7 +47,7 @@ public class FileParaverRow {
             buffwrttr.flush();
 
             //LEVEL NODE SIZE Y
-            String[] nodeNames = convertNodeNames();
+            String[] nodeNames = convertNodeIps();
             System.out.println("convertNodeNames()->" + Arrays.toString(nodeNames));
             String p2 = String.format("LEVEL NODE SIZE %d\n", nodeNames.length);
             buffwrttr.write(p2);
@@ -57,6 +57,33 @@ public class FileParaverRow {
             buffwrttr.write("\n"); //Linea vacia
             buffwrttr.flush();
 
+            //LEVEL APPL SIZE 3
+            buffwrttr.write(String.format("LEVEL APPL SIZE 3\n"));
+            buffwrttr.write(String.format("System Stats\n"));
+            buffwrttr.write(String.format("Hadoop Daemons\n"));
+            buffwrttr.write(String.format("Hadoop Tasks\n"));
+            buffwrttr.write("\n"); //Linea vacia
+            buffwrttr.flush();
+
+            //LEVEL TASK SIZE Z
+            String[] taskNames = convertTaskNames();
+            buffwrttr.write(String.format("LEVEL TASK SIZE %d\n", taskNames.length));
+            for (String r : taskNames) {
+                buffwrttr.write(r + "\n");
+            }
+            buffwrttr.write("\n"); //Linea vacia
+            buffwrttr.flush();
+
+            //LEVEL THREAD SIZE Z
+            String[] threadNames = convertTaskNames();
+            buffwrttr.write(String.format("LEVEL THREAD SIZE %d\n", threadNames.length));
+            for (String r : threadNames) {
+                buffwrttr.write(r + "\n");
+            }
+            buffwrttr.write("\n"); //Linea vacia
+            buffwrttr.flush();
+
+            /*
             //LEVEL THREAD SIZE X
             String[] replacements = FileParaverRow.ConvertThreadNames();
             //TODO: anyadir rename de las pid_ntask que hacen referencia a RPC-Server Listener, Reader, Handler y Responder
@@ -72,6 +99,7 @@ public class FileParaverRow {
             //     buffwrttr.write(r + "\n");
             // }
             buffwrttr.flush();
+            */
 
             /*
              while ((line = reader.readLine()) != null) {
@@ -133,6 +161,34 @@ public class FileParaverRow {
             //ERROR LEYENDO EL FICHERO...
             e.printStackTrace();
         }
+    }
+
+    public static String[] convertNodeIps() {
+        ArrayList<String> nodes = DataOnMemory.hcluster.getAllNodeIps();
+        String[] nodesArr = new String[nodes.size()];
+
+        for (int i = 0; i < nodes.size(); i++) {
+            nodesArr[i] = CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(nodes.get(i)));
+        }
+
+        return nodesArr;
+    }
+
+    public static String[] convertTaskNames() {
+        ArrayList<String> fields = new ArrayList<String>();
+
+        // Stats
+        for (String ip : DataOnMemory.hcluster.getAllNodeIps()) {
+            fields.add(CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(ip)) + "_STATS");
+        }
+
+        // Daemons & Tasks
+        ArrayList<Daemon> daemons = DataOnMemory.hcluster.getAllDaemons();
+        for (Daemon d :  DataOnMemory.hcluster.getAllDaemons()) {
+            fields.add(CommonFuncs.ipIntToHuman(CommonFuncs.ipToStrIp(d.ip)) + "_" + Daemon.getDaemonTypeAsStr(d.type));
+        }
+
+        return fields.toArray(new String[fields.size()]);
     }
 
     public static String[] ConvertThreadNamesRpcServers() {

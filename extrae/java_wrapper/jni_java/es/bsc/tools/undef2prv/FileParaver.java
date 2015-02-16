@@ -496,8 +496,18 @@ public class FileParaver {
             for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
                 String ip = entry.getKey();
                 ArrayList<Sysstat> sysstats = entry.getValue();
+
+                ArrayList<String> cluster_ips = DataOnMemory.hcluster.getAllNodeIps();
+
+                Integer num_cpu = cluster_ips.indexOf(ip);
+                if (num_cpu < 0) {
+                    Undef2prv.logger.error("SYSSTAT IP (" + ip + ") NOT FOUND IN CLUSTER, SKIPPED " + sysstats.size() + " EVENTS");
+                    continue;
+                }
+                num_cpu++;  // Start in index 1
+
                 for (Sysstat sysstat : sysstats) {
-                    filepw.println(sysstat.toStringParaverFormat(DataOnMemory.hcluster.getAllDaemons().size() + num_sysstat));
+                    filepw.println(sysstat.toStringParaverFormat(num_cpu));
                     filepw.flush();
                 }
                 num_sysstat++;
@@ -505,7 +515,7 @@ public class FileParaver {
 
             //los 888888
             for (RecordNEvent ner : this.nseq_NERDemonInfo) {
-                String recordStr = ner.toStringParaverFormat();
+                String recordStr = ner.toStringParaverFormat(true);
                 //Writing to the file
                 filepw.println(recordStr);
                 filepw.flush();
@@ -516,7 +526,7 @@ public class FileParaver {
                 String xx = obj.getClass().getName();
                 if (xx.contains("RecordNEvent")) {
                     RecordNEvent ner = (RecordNEvent) obj;
-                    String recordStr = ner.toStringParaverFormat();
+                    String recordStr = ner.toStringParaverFormat(true);
 
                     if (clean && recordStr.contains("null")) {
                         nullcounter++;
@@ -558,7 +568,7 @@ public class FileParaver {
             reidcounter = 0;
             int nevents = 0, nstates = 0;
             for (RecordNEvent ner : this.recordsToReidentify) {
-                String recordStr = ner.toStringParaverFormat();
+                String recordStr = ner.toStringParaverFormat(true);
 
                 if (clean && !recordStr.contains("null")) {
                     //OUTPUT file

@@ -60,14 +60,14 @@ class Sysstat {
         this.system_load_15 = splitted[33];
     }
 
-    public String toStringParaverFormat(int num_app) {
+    public String toStringParaverFormat(int num_cpu) {
         String retval = "";
 
         ArrayList<String> vars = new ArrayList<String>();
         vars.add("2");  // Recordtype
-        vars.add("1");  // Cpu
-        vars.add(Integer.toString(num_app));  // Application
-        vars.add("1");  // Process
+        vars.add(Integer.toString(num_cpu));  // Cpu
+        vars.add(ParaverResource.TYPE_STAT);  // Application
+        vars.add(Integer.toString(num_cpu));  // Process (same as cpu)
         vars.add("1");  // Thread
         vars.add(this.timestamp.toString());  // EventTime
 

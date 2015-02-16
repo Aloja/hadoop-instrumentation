@@ -1,5 +1,7 @@
 package es.bsc.tools.undef2prv;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,6 +33,30 @@ class Daemon {
     public static final Comparator<Daemon> APP_COMPARATOR = new Comparator<Daemon>() {
         public int compare(Daemon d1, Daemon d2){
             return Integer.valueOf(d1.app).compareTo(Integer.valueOf(d2.app));
+        }
+    };
+
+    public static final Comparator<Daemon> VISUAL_COMPARATOR = new Comparator<Daemon>() {
+        public int compare(Daemon d1, Daemon d2){
+            // Change ip endianness to allow integer comparison
+            int ip1 = ByteBuffer.wrap(BigInteger.valueOf(Long.parseLong(d1.ip)).toByteArray()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+            int ip2 = ByteBuffer.wrap(BigInteger.valueOf(Long.parseLong(d2.ip)).toByteArray()).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+
+            // First group by paraver type
+            int result = Integer.valueOf(d1.getParaverType()).compareTo(Integer.valueOf(d2.getParaverType()));
+            if (result != 0) return result;
+
+            // Then by ip
+            result = Integer.valueOf(ip1).compareTo(Integer.valueOf(ip2));
+            if (result != 0) return result;
+
+            // Then by type (jobtracker, namenode, ...)
+            result = Integer.valueOf(d1.type).compareTo(Integer.valueOf(d2.type));
+            if (result != 0) return result;
+
+            // Finally by app id (to maintain order of creation)
+            result = Integer.valueOf(d1.app).compareTo(Integer.valueOf(d2.app));
+            return result;
         }
     };
 
@@ -85,5 +111,42 @@ class Daemon {
                 break;
         }
         return nline;
+    }
+
+    public String getParaverType() {
+        String result = null;
+        switch (this.type) {
+            case Daemon.NODE_ID_JOBTRACKER:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            case Daemon.NODE_ID_NAMENODE:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            case Daemon.NODE_ID_SECONDARY_NAMENODE:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            case Daemon.NODE_ID_TASKTRACKER:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            case Daemon.NODE_ID_DATANODE:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            case Daemon.NODE_ID_TASK:
+                result = ParaverResource.TYPE_TASK;
+                break;
+            case Daemon.NODE_ID_MAP:
+                result = ParaverResource.TYPE_TASK;
+                break;
+            case Daemon.NODE_ID_REDUCE:
+                result = ParaverResource.TYPE_TASK;
+                break;
+            case Daemon.NODE_ID_JCLIENT:
+                result = ParaverResource.TYPE_DAEMON;
+                break;
+            default:
+                result = ParaverResource.TYPE_STAT;
+                break;
+        }
+        return result;
     }
 }

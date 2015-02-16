@@ -17,6 +17,7 @@ public class RecordNEvent {
     public String Process; //Communication Source: PROCESS
     public String Thread; //Communication Source: THREAD
     public String EventTime; //Event Time
+    public String OriginalApplication;
     public HashMap<String, String> RecordEventsHM = new HashMap<>();
     public static final String KEY_LOCAL_IP_sin_addr = "77770";
     public static final String KEY_LOCAL_PORT = "77771";
@@ -49,6 +50,7 @@ public class RecordNEvent {
         this.RecordType = splitted[0];
         this.Cpu = splitted[1];
         this.Application = splitted[2];
+        this.OriginalApplication = splitted[2];
         this.Process = splitted[3];
         this.Thread = splitted[4];
         this.EventTime = splitted[5];
@@ -267,14 +269,36 @@ public class RecordNEvent {
     }
 
     public String toStringParaverFormat() {
+        return this.toStringParaverFormat(false);
+    }
+
+    /**
+     * If convert is false, the original values of cpu, app, process and thread will be returned.
+     * If convert is true, these values will be translated to our custom Paraver Resource model.
+     */
+    public String toStringParaverFormat(Boolean convert) {
         String retval = "";
 
         ArrayList<String> vars = new ArrayList<>();
         vars.add(this.RecordType);
-        vars.add(this.Cpu);
-        vars.add(this.Application);
-        vars.add(this.Process);
-        vars.add(this.Thread);
+
+        if (!convert) {
+            vars.add(this.Cpu);
+            vars.add(this.Application);
+            vars.add(this.Process);
+            vars.add(this.Thread);
+        } else {
+            ParaverResource prvres = DataOnMemory.app_to_paraver_resource.get(this.OriginalApplication);
+            if (prvres == null) {
+                Undef2prv.logger.debug("RecordNEvent.toStringParaverFormat FAILED TO CONVERT, ORIGINAL STRING: " + this.toStringParaverFormat());
+                return "";
+            }
+            vars.add(prvres.cpu);
+            vars.add(prvres.app);
+            vars.add(prvres.task);
+            vars.add(prvres.thread);
+        }
+
         vars.add(this.EventTime);
 
         for (String k : RecordEventsHM.keySet()) {

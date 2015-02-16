@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class ParaverHeader {
         String p2 = genTraceTime(); //ftime
         String p3 = genNNodes(); //nNodes(nCpus1[,nCpus2,...,nCpusN])
         //String p4 = genNAppl(); //manera clean
-        String p4 = Integer.toString(DataOnMemory.ntask_pid.keySet().size() + DataOnMemory.sysstats.keySet().size()); //manera dirty
+        String p4 = "3"; // Always 3 apps: Stats, Daemons and Tasks
         //String p5 = genApplicationList(); //manera clean
         String p5 = dirtyGenApplicationList(); //manera dirty
 
@@ -99,34 +100,46 @@ public class ParaverHeader {
     public static String genNNodes() {
         String retval = null;
         int nNodes = DataOnMemory.hcluster.getClusterSize();
-        Set<String> daemons = DataOnMemory.hcluster.getAllPidsByNode();
-        String[] strArr = daemons.toArray(new String[daemons.size()]);
+        String[] cpusArr = new String[nNodes];
+        Arrays.fill(cpusArr, "1");
 
-        retval = String.format("%d(%s)", nNodes, CommonFuncs.join(strArr, ","));
+        retval = String.format("%d(%s)", nNodes, CommonFuncs.join(cpusArr, ","));
         return retval;
     }
 
     public static String dirtyGenApplicationList() {
 
-        ArrayList<String> nthrStr = new ArrayList<>();
-        String retval = null;
-        
-        for (String s : DataOnMemory.ntask_pid.keySet()) {
-            Undef2prv.logger.debug("dirtyGenApplicationList->"+s);
-            nthrStr.add(String.format("1(1:%s)", s)); // Default #threads is 1
-        }
-        int num_sysstat = nthrStr.size();
-        for (String s : DataOnMemory.sysstats.keySet()) {
-            num_sysstat++;
-            Undef2prv.logger.debug("dirtyGenApplicationList->"+num_sysstat);
-            nthrStr.add(String.format("1(1:%s)", num_sysstat)); // Default #threads is 1
-        }
+        ArrayList<String> fields = new ArrayList<>();
 
-        String d = CommonFuncs.join(nthrStr.toArray(new String[nthrStr.size()]), ",");
+        // One sysstat per node
+        int num_nodes = DataOnMemory.hcluster.getAllNodeIps().size();
+        String[] sysstatsArr = new String[num_nodes];
+        for (int i = 0; i < num_nodes; i++) {
+            // Every sysstat has one thread and is assigned to a consecutive cpu
+            sysstatsArr[i] = String.format("1:%s", Integer.toString(i+1));
+        }
+        fields.add(String.format("%d(%s)", sysstatsArr.length, CommonFuncs.join(sysstatsArr, ",")));
 
-        //retval = String.format("%d(%s)", nthrStr.size(), d); //nTasks(nThreadsl:node,...,nThreadsN:node) 
-        retval = String.format("%s", d); //nTasks(nThreadsl:node,...,nThreadsN:node), 
-        return retval;
+        // All daemons
+        ArrayList<Daemon> daemons = DataOnMemory.hcluster.getAllDaemonsWithParaverType(ParaverResource.TYPE_DAEMON);
+        String[] daemonsArr = new String[daemons.size()];
+        for (int i = 0; i < daemons.size(); i++) {
+            // Every daemon has one thread and is assigned to its cpu
+            daemonsArr[i] = String.format("1:%s", DataOnMemory.hcluster.getParaverCpu(daemons.get(i)));
+        }
+        fields.add(String.format("%d(%s)", daemonsArr.length, CommonFuncs.join(daemonsArr, ",")));
+
+        // All tasks (maps & reduces)
+        ArrayList<Daemon> tasks = DataOnMemory.hcluster.getAllDaemonsWithParaverType(ParaverResource.TYPE_TASK);
+        String[] tasksArr = new String[tasks.size()];
+        for (int i = 0; i < tasks.size(); i++) {
+            // Every task has one thread and is assigned to its cpu
+            tasksArr[i] = String.format("1:%s", DataOnMemory.hcluster.getParaverCpu(tasks.get(i)));
+        }
+        fields.add(String.format("%d(%s)", tasksArr.length, CommonFuncs.join(tasksArr, ",")));
+
+
+        return CommonFuncs.join(fields.toArray(new String[fields.size()]), ",");
     }
 
     public static String genApplicationList() {
