@@ -63,7 +63,11 @@ public class RecordNEvent {
     public void setTimeOffset(Long offset) {
         if (offset == null) return;
 
-        this.EventTime = String.valueOf(Long.parseLong(this.EventTime) + offset);
+        // State records that have a start time of 0 don't change
+        // This avoids a paraver bug that would show first the thread IDLE and after NOT CREATED
+        if (!(this.RecordType.equals("1") && Long.parseLong(this.EventTime) == 0L)) {
+            this.EventTime = String.valueOf(Long.parseLong(this.EventTime) + offset);
+        }
 
         // State records change the end_time too
         if (this.RecordType.equals("1")) {

@@ -23,6 +23,7 @@ public class FileParaver {
     protected HashMap<String, ArrayList<Object>> nseq_NERToConvert = new HashMap<>(); //records to convert
     protected HashMap<String, SyncInfo> syncinfo_from_app = new HashMap<>(); //records to convert
     protected HashMap<String, Long> sync_offset_from_ip = new HashMap<>(); //records to convert
+    protected Long sync_min_event_value = 0L; // contains the minimum time value of all the events
     protected ArrayList<RecordNEvent> nseq_NERDemonInfo = new ArrayList<>(); //records to convert
     protected Set<RecordNEvent> recordsToReidentify = new HashSet<>(); //records to reidentify, not convert
     protected ArrayList<RecordComm> ERCConverted = new ArrayList<>();
@@ -65,10 +66,18 @@ public class FileParaver {
         // Sort by original app id, this way the first is the master, then the slaves in order
         Collections.sort(tasktrackers, Daemon.APP_COMPARATOR);
 
-        Long master_start = this.syncinfo_from_app.get(tasktrackers.get(0).app).start;
+        // Also check the first event time value here (will always be a sysstat, because is the first process started)
+        // Only need to check the first sysstat, because is from the master node
+        SyncInfo master = this.syncinfo_from_app.get(tasktrackers.get(0).app);
+        Sysstat master_first_sysstat = DataOnMemory.sysstats.entrySet().iterator().next().getValue().get(0);
+        this.sync_min_event_value = ((master_first_sysstat.timestamp - master.timestamp) * 1000L + master.tsc);
+        Undef2prv.logger.info("SYNC-ANALYSIS MIN EVENT VALUE " + this.sync_min_event_value);
 
-        for (int i=1; i<tasktrackers.size(); i++) {
+        Long master_start = master.start;
+
+        for (int i=0; i<tasktrackers.size(); i++) {
             Long offset = (this.syncinfo_from_app.get(tasktrackers.get(i).app).start - master_start);
+            offset -= this.sync_min_event_value;
             this.sync_offset_from_ip.put(tasktrackers.get(i).ip, offset);
         }
         for (Map.Entry<String, Long> entry : this.sync_offset_from_ip.entrySet()) {
@@ -87,7 +96,7 @@ public class FileParaver {
             String ip = entry.getKey();
             ArrayList<Sysstat> sysstats = entry.getValue();
             for (Sysstat sysstat : sysstats) {
-                sysstat.timestamp = (sysstat.timestamp - master.timestamp) * 1000L + master.tsc;
+                sysstat.timestamp = ((sysstat.timestamp - master.timestamp) * 1000L + master.tsc) - this.sync_min_event_value;
             }
         }
     }
