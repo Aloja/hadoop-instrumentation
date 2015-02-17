@@ -7,6 +7,7 @@ class ParaverResource {
     public static final String TYPE_TASK = "3";
 
     public String original_app;
+    public String ntask;
     public String cpu;
     public String app;
     public String task;
@@ -14,7 +15,7 @@ class ParaverResource {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + "{original_app: " + original_app + ", cpu: " + cpu + ", app: " + app + ", task: " + task + ", thread: " + thread + "}";
+        return this.getClass().getSimpleName() + "{original_app: " + original_app + ", ntask: " + ntask + ", cpu: " + cpu + ", app: " + app + ", task: " + task + ", thread: " + thread + "}";
     }
 
 }

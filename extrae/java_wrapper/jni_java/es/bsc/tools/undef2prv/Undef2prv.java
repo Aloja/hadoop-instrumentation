@@ -60,7 +60,6 @@ public class Undef2prv {
             Undef2prv.logger.info("Mapping pid-ntask generated...");
 
             //.prv conversion
-            DataOnMemory.fprv.syncCommsEvents();
             DataOnMemory.fprv.convertNEventsToComms();
             DataOnMemory.fprv.reidentifyNEventRecords();
             DataOnMemory.fprv.syncAllNodes();

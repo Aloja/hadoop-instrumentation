@@ -39,6 +39,7 @@ public class DataOnMemory {
     public static LinkedHashMap<String, ArrayList<Sysstat>> sysstats = new LinkedHashMap<>();
 
     public static LinkedHashMap<String, ParaverResource> app_to_paraver_resource = new LinkedHashMap<String, ParaverResource>();
+    public static LinkedHashMap<String, ParaverResource> ntask_to_paraver_resource = new LinkedHashMap<String, ParaverResource>();
 
     public DataOnMemory() {
     }
@@ -334,11 +335,13 @@ public class DataOnMemory {
 
                 ParaverResource prvres = new ParaverResource();
                 prvres.original_app = d.app;
+                prvres.ntask = d.extraeNtask;
                 prvres.cpu = DataOnMemory.hcluster.getParaverCpu(d);
                 prvres.app = d.getParaverType();
                 prvres.task = DataOnMemory.hcluster.getParaverTask(d);
                 prvres.thread = "1";
                 DataOnMemory.app_to_paraver_resource.put(prvres.original_app, prvres);
+                DataOnMemory.ntask_to_paraver_resource.put(prvres.ntask, prvres);
 
                 Undef2prv.logger.debug("Cluster NTASK[" + d.extraeNtask + "] ASSIGNED to DAEMON[ip:pid=" + d.ip + ":" + d.pid + "]");
                 ntask++;
@@ -363,6 +366,10 @@ public class DataOnMemory {
 
         for (Map.Entry<String, ParaverResource> entry : DataOnMemory.app_to_paraver_resource.entrySet()) {
             Undef2prv.logger.debug("ParaverResource assigned original_app=" + entry.getKey() + " " + entry.getValue());
+        }
+
+        for (Map.Entry<String, ParaverResource> entry : DataOnMemory.ntask_to_paraver_resource.entrySet()) {
+            Undef2prv.logger.debug("ParaverResource assigned ntask=" + entry.getKey() + " " + entry.getValue());
         }
     }
 

@@ -77,7 +77,11 @@ public class FileParaver {
     }
 
     public void syncSysstat() {
-        SyncInfo master = this.syncinfo_from_app.get(DataOnMemory.hcluster.getAllTaskTrackers().get(0).app);
+        ArrayList<Daemon> tasktrackers = DataOnMemory.hcluster.getAllTaskTrackers();
+        // Sort by original app id, this way the first is the master, then the slaves in order
+        Collections.sort(tasktrackers, Daemon.APP_COMPARATOR);
+
+        SyncInfo master = this.syncinfo_from_app.get(tasktrackers.get(0).app);
 
         for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
             String ip = entry.getKey();
@@ -105,20 +109,10 @@ public class FileParaver {
         }
     }
 
-    public void syncCommsEvents() {
-        Long offset = null;
-        for (ArrayList<Object> events : this.nseq_NERToConvert.values()) {
-            for (Object object : events) {
-                RecordNEvent ner = (RecordNEvent) object;
-                offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
-                ner.setTimeOffset(offset);
-            }
-        }
-    }
-
     public void syncAllNodes() {
         // At this point all the events's "Application" has been converted to "NTask" (after running reidentifyNEventRecords)
         Long offset = null;
+        Long offset_dst = null;
         for (RecordNEvent ner : this.nseq_NERDemonInfo) {
             offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
             ner.setTimeOffset(offset);
@@ -127,9 +121,12 @@ public class FileParaver {
             offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.Application));
             ner.setTimeOffset(offset);
         }
-        // It's too late to do it here, the original events that generated the
-        // comms must be the ones to sync, not the final comm.
-        // for (RecordComm ner : this.ERCConverted) {}
+        // Comms have two independent times that we have to fix, the src and the dst
+        for (RecordComm ner : this.ERCConverted) {
+            offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.CommSrcApplication));
+            offset_dst = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.CommDstApplication));
+            ner.setTimeOffset(offset, offset_dst);
+        }
     }
 
     public void loadLine(String line) {
@@ -537,7 +534,7 @@ public class FileParaver {
                     }
                 } else if (xx.contains("RecordComm")) {
                     RecordComm erc = (RecordComm) obj;
-                    String recordStr = erc.toStringParaverFormat();
+                    String recordStr = erc.toStringParaverFormat(true);
 
                     if (clean && recordStr.contains("null")) {
                         commwnull++;

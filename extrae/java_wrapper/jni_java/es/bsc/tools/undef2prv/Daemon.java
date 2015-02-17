@@ -149,4 +149,9 @@ class Daemon {
         }
         return result;
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{recordId: " + recordId + ", pid: " + pid + ", type: " + type + ", ip: " + ip + ", app: " + app + ", extraeNtask: " + extraeNtask + "}";
+    }
 }

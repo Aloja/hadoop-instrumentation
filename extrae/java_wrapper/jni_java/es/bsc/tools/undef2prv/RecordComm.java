@@ -60,6 +60,17 @@ public class RecordComm {
         this.CommTag = RecordComm.DEFAULT_TAG;
     }
 
+    public void setTimeOffset(Long offset_src, Long offset_dst) {
+        if (offset_src != null) {
+            this.CommSrcTimeLogical = String.valueOf(Long.parseLong(this.CommSrcTimeLogical) + offset_src);
+            this.CommSrcTimePhysical = String.valueOf(Long.parseLong(this.CommSrcTimePhysical) + offset_src);
+        }
+        if (offset_dst != null) {
+            this.CommDstTimeLogical = String.valueOf(Long.parseLong(this.CommDstTimeLogical) + offset_dst);
+            this.CommDstTimePhysical = String.valueOf(Long.parseLong(this.CommDstTimePhysical) + offset_dst);
+        }
+    }
+
     public RecordComm(String line) {
         String[] splitted = line.split("\\:");
 
@@ -123,6 +134,14 @@ public class RecordComm {
     }
 
     public String toStringParaverFormat() {
+        return this.toStringParaverFormat(false);
+    }
+
+    /**
+     * If convert is false, the original values of cpu, app, process and thread will be returned.
+     * If convert is true, these values will be translated to our custom Paraver Resource model.
+     */
+    public String toStringParaverFormat(Boolean convert) {
         String retval = "";
 
         String[] vars = {
@@ -141,6 +160,23 @@ public class RecordComm {
             this.CommDstTimePhysical,
             this.CommSize,
             this.CommTag};
+
+        if (convert) {
+            ParaverResource prvres_src = DataOnMemory.ntask_to_paraver_resource.get(this.CommSrcApplication);
+            ParaverResource prvres_dst = DataOnMemory.ntask_to_paraver_resource.get(this.CommDstApplication);
+            if (prvres_src == null || prvres_dst == null) {
+                Undef2prv.logger.debug("RecordComm.toStringParaverFormat FAILED TO CONVERT, prvres_src=" + prvres_src + " prvres_dst=" + prvres_dst + " ORIGINAL STRING: " + this.toStringParaverFormat());
+                return "";
+            }
+            vars[1] = prvres_src.cpu;
+            vars[2] = prvres_src.app;
+            vars[3] = prvres_src.task;
+            vars[4] = prvres_src.thread;
+            vars[7] = prvres_dst.cpu;
+            vars[8] = prvres_dst.app;
+            vars[9] = prvres_dst.task;
+            vars[10] = prvres_dst.thread;
+        }
 
         String obligatory = CommonFuncs.join(vars, ":");
 
