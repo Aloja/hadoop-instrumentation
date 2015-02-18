@@ -62,6 +62,7 @@ public class Undef2prv {
             //.prv conversion
             DataOnMemory.fprv.convertNEventsToComms();
             DataOnMemory.fprv.reidentifyNEventRecords();
+            DataOnMemory.fprv.syncAnalysisNetworkHandshake();
             DataOnMemory.fprv.syncAllNodes();
             DataOnMemory.fprv.sortRecords();
             DataOnMemory.fprv.printPrvFile();

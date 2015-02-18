@@ -26,6 +26,10 @@ public class RecordComm {
     public String CommDstTimePhysical = null; //Communication Destination: tPhysical
     public String CommSize = null; //Communication size
     public String CommTag = null; //Communication Tag
+
+    public RecordNEvent event_src;
+    public RecordNEvent event_dst;
+
     public static final String DEFAULT_TAG = "1";
     static final Comparator<RecordComm> TEMPORAL_SORT =
             new Comparator<RecordComm>() {
@@ -183,6 +187,34 @@ public class RecordComm {
         retval = String.format("%s", obligatory);
 
         return retval;
+    }
+
+    public String getTcpSrcIp() {
+        return this.event_src.getSrcIp();
+    }
+
+    public String getTcpDstIp() {
+        return this.event_src.getDstIp();
+    }
+
+    public Long getTcpSeq() {
+        return Long.parseLong(this.event_src.getTcpNSeq());
+    }
+
+    public Long getTcpAck() {
+        return Long.parseLong(this.event_src.getNAck());
+    }
+
+    public Long getTcpSizeApp() {
+        return Long.parseLong(this.event_src.getSizeApp());
+    }
+
+    public Boolean isSyn() {
+        return this.event_src.isSyn();
+    }
+
+    public Boolean isAck() {
+        return this.event_src.isAck();
     }
 
     /**

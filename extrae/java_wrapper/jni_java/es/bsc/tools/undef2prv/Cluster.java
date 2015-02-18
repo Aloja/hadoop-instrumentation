@@ -191,6 +191,9 @@ class Cluster {
             ds.addAll(n.getDaemonsWithType(Daemon.NODE_ID_TASKTRACKER));
         }
 
+        // Sort by original app id, this way the first is the master, then the slaves in order
+        Collections.sort(ds, Daemon.APP_COMPARATOR);
+
         return ds;
     }
 

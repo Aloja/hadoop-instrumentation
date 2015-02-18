@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +24,7 @@ public class FileParaver {
 
     protected HashMap<String, ArrayList<Object>> nseq_NERToConvert = new HashMap<>(); //records to convert
     protected HashMap<String, SyncInfo> syncinfo_from_app = new HashMap<>(); //records to convert
-    protected HashMap<String, Long> sync_offset_from_ip = new HashMap<>(); //records to convert
+    protected LinkedHashMap<String, Long> sync_offset_from_ip = new LinkedHashMap<>(); //records to convert
     protected Long sync_min_event_value = 0L; // contains the minimum time value of all the events
     protected ArrayList<RecordNEvent> nseq_NERDemonInfo = new ArrayList<>(); //records to convert
     protected Set<RecordNEvent> recordsToReidentify = new HashSet<>(); //records to reidentify, not convert
@@ -63,8 +65,6 @@ public class FileParaver {
 
     public void syncAnalysis() {
         ArrayList<Daemon> tasktrackers = DataOnMemory.hcluster.getAllTaskTrackers();
-        // Sort by original app id, this way the first is the master, then the slaves in order
-        Collections.sort(tasktrackers, Daemon.APP_COMPARATOR);
 
         // Also check the first event time value here (will always be a sysstat, because is the first process started)
         // Only need to check the first sysstat, because is from the master node
@@ -87,8 +87,6 @@ public class FileParaver {
 
     public void syncSysstat() {
         ArrayList<Daemon> tasktrackers = DataOnMemory.hcluster.getAllTaskTrackers();
-        // Sort by original app id, this way the first is the master, then the slaves in order
-        Collections.sort(tasktrackers, Daemon.APP_COMPARATOR);
 
         SyncInfo master = this.syncinfo_from_app.get(tasktrackers.get(0).app);
 
@@ -135,6 +133,112 @@ public class FileParaver {
             offset = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.CommSrcApplication));
             offset_dst = this.sync_offset_from_ip.get(DataOnMemory.hcluster.getIpFromNTask(ner.CommDstApplication));
             ner.setTimeOffset(offset, offset_dst);
+        }
+    }
+
+    public void syncAnalysisNetworkHandshake() {
+        LinkedHashMap<String, ArrayList<Long[]>> offsets = new LinkedHashMap<String, ArrayList<Long[]>>();
+        Daemon master = DataOnMemory.hcluster.getAllTaskTrackers().get(0);
+
+        // Find all SYN (step 1 handshake)
+        ArrayList<RecordComm> comms_syn = new ArrayList<RecordComm>();
+        for (RecordComm ner : this.ERCConverted) {
+            if (ner.getTcpAck().equals(0L) && ner.isSyn() && !ner.isAck() && !ner.toStringParaverFormat().contains("null")) {
+                // Only want communitacions between different nodes, and from or to master
+                if (!ner.getTcpSrcIp().equals(ner.getTcpDstIp()) && (ner.getTcpSrcIp().equals(master.ip) || ner.getTcpDstIp().equals(master.ip))) {
+                    comms_syn.add(ner);
+                }
+            }
+        }
+
+        // Order them by time
+        Collections.sort(comms_syn, new Comparator<RecordComm>(){
+            public int compare(RecordComm r1, RecordComm r2) {
+                return new Long(r1.CommSrcTimePhysical).compareTo(new Long(r2.CommSrcTimePhysical));
+            }
+        });
+
+        for (RecordComm comm_syn : comms_syn) {
+            ArrayList<RecordComm> matches_syn_ack = new ArrayList<RecordComm>();
+            Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE SYN %s", comm_syn.toStringParaverFormat()));
+
+            // Find all matching SYN-ACK (step 2 handshake)
+            for (RecordComm match_syn_ack : this.ERCConverted) {
+                if (comm_syn.getTcpSeq().equals(match_syn_ack.getTcpAck() - 1) && comm_syn.CommSrcApplication.equals(match_syn_ack.CommDstApplication) && comm_syn.CommDstApplication.equals(match_syn_ack.CommSrcApplication)) {
+                    matches_syn_ack.add(match_syn_ack);
+                }
+            }
+            Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE SYN-ACK FOUND MATCHES: %s", matches_syn_ack.size()));
+
+            if (matches_syn_ack.size() == 1) {
+                RecordComm comm_syn_ack = matches_syn_ack.get(0);
+                ArrayList<RecordComm> matches_ack = new ArrayList<RecordComm>();
+
+                Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE SYN-ACK FOUND %s", comm_syn_ack.toStringParaverFormat()));
+
+                // Find all matching ACK (step 3 handshake)
+                for (RecordComm match_ack : this.ERCConverted) {
+                    if (match_ack.getTcpSizeApp().equals(0L) && comm_syn_ack.getTcpSeq().equals(match_ack.getTcpAck() - 1) && comm_syn_ack.getTcpAck().equals(match_ack.getTcpSeq()) && comm_syn_ack.CommSrcApplication.equals(match_ack.CommDstApplication) && comm_syn_ack.CommDstApplication.equals(match_ack.CommSrcApplication)) {
+                        matches_ack.add(match_ack);
+                    }
+                }
+                Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE ACK FOUND MATCHES: %s", matches_ack.size()));
+
+                if (matches_ack.size() == 1) {
+                    // Found a complete handshake!
+                    RecordComm comm_ack = matches_ack.get(0);
+
+                    Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE ACK FOUND %s", comm_ack.toStringParaverFormat()));
+
+                    Long master_low, slave_low, slave_high, master_high;
+                    String ip;
+                    if (comm_syn.getTcpDstIp().equals(master.ip)) {
+                        // Connection initiated from slave to master
+                        master_low = Long.parseLong(comm_syn_ack.CommSrcTimePhysical);
+                        slave_low = Long.parseLong(comm_syn_ack.CommDstTimePhysical);
+                        slave_high = Long.parseLong(comm_ack.CommSrcTimePhysical);
+                        master_high = Long.parseLong(comm_ack.CommDstTimePhysical);
+                        ip = comm_syn.getTcpSrcIp();
+                    } else {
+                        // Connection initiated from master to slave
+                        master_low = Long.parseLong(comm_syn.CommSrcTimePhysical);
+                        slave_low = Long.parseLong(comm_syn.CommDstTimePhysical);
+                        slave_high = Long.parseLong(comm_syn_ack.CommSrcTimePhysical);
+                        master_high = Long.parseLong(comm_syn_ack.CommDstTimePhysical);
+                        ip = comm_syn.getTcpDstIp();
+                    }
+
+                    Boolean correct = (master_low <= slave_low && slave_high <= master_high);
+                    Long offset_low = 0L;
+                    Long offset_high = 0L;
+                    if (!correct) {
+                        offset_low = master_low-slave_low;
+                        offset_high = master_high-slave_high;
+
+                        if (offsets.get(ip) == null) offsets.put(ip, new ArrayList<Long[]>());
+                        offsets.get(ip).add(new Long[]{offset_low, offset_high});
+                    }
+                    Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE OFFSET[%s %s] %s %s %s %s %s", offset_low, offset_high, master_low, slave_low, slave_high, master_high, correct));
+                }
+            }
+        }
+        for (Map.Entry<String, ArrayList<Long[]>> entry : offsets.entrySet()) {
+            String ip = entry.getKey();
+            ArrayList<Long[]> entry_offsets = entry.getValue();
+            for (Long[] entry_offset : entry_offsets) {
+                Undef2prv.logger.debug(String.format("SYNC-HANDSHAKE FINAL %s %s %s", ip, entry_offset[0], entry_offset[1]));
+            }
+        }
+        for (Map.Entry<String, Long> entry : sync_offset_from_ip.entrySet()) {
+            String ip = entry.getKey();
+            Long offset = entry.getValue();
+
+            if (offsets.containsKey(ip)) {
+                // TODO: instead of only using the first one, if makes sense take into account all the offsets available
+                // Right now can't do it because there is a progressive desync between nodes
+                Long current_offset = (offsets.get(ip).get(0)[0] + offsets.get(ip).get(0)[1]) / 2;
+                sync_offset_from_ip.put(ip, (current_offset - this.sync_min_event_value));
+            }
         }
     }
 
