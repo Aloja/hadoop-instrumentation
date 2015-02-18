@@ -184,4 +184,16 @@ public class RecordComm {
 
         return retval;
     }
+
+    /**
+     * Returns whether this communication is local (from/to the same node)
+     */
+    public Boolean isLocal() {
+        ParaverResource prvres_src = DataOnMemory.ntask_to_paraver_resource.get(this.CommSrcApplication);
+        ParaverResource prvres_dst = DataOnMemory.ntask_to_paraver_resource.get(this.CommDstApplication);
+        if (prvres_src == null || prvres_dst == null) return null;
+        return (
+            prvres_src.cpu.equals(prvres_dst.cpu)
+        );
+    }
 }

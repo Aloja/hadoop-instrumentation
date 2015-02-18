@@ -545,6 +545,12 @@ public class FileParaver {
                     RecordComm erc = (RecordComm) obj;
                     String recordStr = erc.toStringParaverFormat(true);
 
+                    String comm_local;
+                    if (erc.isLocal() == null) comm_local = "null";
+                    else if (erc.isLocal()) comm_local = "SAME";
+                    else comm_local = "DIFF";
+                    Undef2prv.logger.debug(String.format("TIMECHECK %s %s %s%n", comm_local, (Long.parseLong(erc.CommDstTimeLogical) - Long.parseLong(erc.CommSrcTimeLogical)), recordStr));
+
                     if (clean && recordStr.contains("null")) {
                         commwnull++;
                     } else {

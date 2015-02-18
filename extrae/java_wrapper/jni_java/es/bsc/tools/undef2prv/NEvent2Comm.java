@@ -99,6 +99,16 @@ public class NEvent2Comm {
         eRComm.CommSize = nEvSrc.getTcpNSeq();
         eRComm.CommTag = nEvSrc.getNAck();
 
+        // If comm is in the same node (same src&dst ip) set the same times
+        if (nEvSrc.getSrcIp().equals(nEvSrc.getDstIp())) {
+            // Choose the lowest time to avoid comms out of order due to the capture delay
+            Long min = Math.min(Long.parseLong(nEvSrc.getTimeNetworkSynced()), Long.parseLong(nEvDst.getTimeNetworkSynced()));
+            eRComm.CommSrcTimeLogical = Long.toString(min);
+            eRComm.CommSrcTimePhysical = Long.toString(min);
+            eRComm.CommDstTimeLogical = Long.toString(min);
+            eRComm.CommDstTimePhysical = Long.toString(min);
+        }
+
         //<DEBUGGING....>
         //SRC_PORT ANALYSIS
         String sndPort = nEvSrc.getSrcPort();
