@@ -24,7 +24,7 @@ echo "##################################################"
 while read node
 do
 ssh $node <<ENDSSH
-sudo --non-interactive setcap cap_net_raw=eip ${SNIFFER_BIN} || true
+sudo -n setcap cap_net_raw=eip ${SNIFFER_BIN} || true
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
