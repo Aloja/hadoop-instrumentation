@@ -77,7 +77,16 @@ rm -f $TRACES_OUTPUT/sysstat*
 while read node
 do
 scp $node:$EXTRAE_DIR/sysstat.sar $TRACES_OUTPUT/sysstat-$node.sar
-sadf -d -h -U $TRACES_OUTPUT/sysstat-$node.sar -- -u -B -r -q > $TRACES_OUTPUT/sysstat-$node.txt
+
+sadf_version=$(echo `sadf -V` | cut --delimiter=' ' --fields=3)
+sadf_version=( ${sadf_version//./ } )
+# if version is 10.1.1 or newer
+if (( ${sadf_version[0]} >= "10" )) && (( ${sadf_version[1]} >= "1" )) ; then
+	sadf -d -h -U $TRACES_OUTPUT/sysstat-$node.sar -- -u -B -r -q > $TRACES_OUTPUT/sysstat-$node.txt
+else
+	sadf -d -h -T $TRACES_OUTPUT/sysstat-$node.sar -- -u -B -r -q > $TRACES_OUTPUT/sysstat-$node.txt
+fi
+
 sed -i '1d' $TRACES_OUTPUT/sysstat-$node.txt
 ip=$(ssh -n $node "hostname --ip-address")
 awk -v "IP=$ip" '{$1=IP}1' FS=';' OFS=';' $TRACES_OUTPUT/sysstat-$node.txt >> $TRACES_OUTPUT/sysstat.txt
