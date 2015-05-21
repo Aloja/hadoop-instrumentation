@@ -25,6 +25,8 @@ while read node
 do
 ssh $node <<ENDSSH
 sudo -n setcap cap_net_raw=eip ${SNIFFER_BIN} || true
+echo "node ${node} sniffer capabilities:"
+getcap ${SNIFFER_BIN}
 ENDSSH
 done < $HADOOP_PREFIX/conf/slaves
 
