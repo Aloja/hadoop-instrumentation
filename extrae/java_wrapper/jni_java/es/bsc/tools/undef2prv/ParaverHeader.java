@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -72,23 +73,34 @@ public class ParaverHeader {
     }
 
     public static String genTraceTime() {
-        //TODO: obtener el trace-record con el tiempo minimo y el trace-record con tiempo maximo
-        //Long totalTraceTime = 4323979284422710L;
-        BigInteger totalTraceTime = new BigInteger("0");
+        // Search the last timestamp
+        BigInteger last = new BigInteger("0");
 
-        BigInteger first = new BigInteger(DataOnMemory.fprv.ERCConverted.get(0).CommSrcTimePhysical);
-        BigInteger last = new BigInteger(DataOnMemory.fprv.ERCConverted.get(DataOnMemory.fprv.ERCConverted.size() - 1).CommSrcTimePhysical);
+        for (RecordNEvent ner : DataOnMemory.fprv.nseq_NERDemonInfo) {
+            BigInteger current = new BigInteger(ner.EventTime);
+            last = last.max(current);
+        }
+        for (Map.Entry<String, ArrayList<Sysstat>> entry : DataOnMemory.sysstats.entrySet()) {
+            String ip = entry.getKey();
+            ArrayList<Sysstat> sysstats = entry.getValue();
 
+            ArrayList<String> cluster_ips = DataOnMemory.hcluster.getAllNodeIps();
 
+            Integer num_cpu = cluster_ips.indexOf(ip);
+            if (num_cpu < 0) {
+                continue;
+            }
 
-        totalTraceTime = last.subtract(first);
+            for (Sysstat sysstat : sysstats) {
+                BigInteger current = new BigInteger(sysstat.timestamp.toString());
+                last = last.max(current);
+            }
+        }
 
         // LOG
-        Undef2prv.logger.debug("genTraceTime().first=" + first);
         Undef2prv.logger.debug("genTraceTime().last=" + last);
-        Undef2prv.logger.debug("genTraceTime().totalTraceTime = (last - first) = " + last);
 
-        return String.format("%d_ns", totalTraceTime); // total tracetime in ns
+        return String.format("%d_ns", last); // total tracetime in ns
     }
 
     public static String genNAppl() {
