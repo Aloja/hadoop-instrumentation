@@ -25,3 +25,11 @@ PATCHES
 - hadoop-extraewrapper-inject.patch.withwalas: old version from Sergio, not used anymore.
 - hadoop-build-classpath.patch: adds extraewrapper.jar (with the Extrae code to generate the events) to the build process. Also removes some unnecessary build targets to speed up compilation time.
 - hadoop-launch-classpath.patch: adds extrae libraries to java library path for execution.
+
+
+TIPS
+----
+
+If the generated trace is very big, the post-process.sh step might run out of memory. Open the script and change in the last line the value of "-Xmx1536m".
+
+When running in the minerva cluster, the sniffer binary needs special permissions. There is a command (sudo setcap_sniffer) that will set these special permissions to the file /scratch/hdd/jcugat/instrumentation/bin/sniffer (it has to be run in every node).
