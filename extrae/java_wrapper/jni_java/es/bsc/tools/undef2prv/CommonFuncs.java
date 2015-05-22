@@ -103,10 +103,9 @@ public class CommonFuncs {
      * Converts the IP address from Integer to the human readable format 1.2.3.4
      */
     public static String ipIntToHuman(String ip) {
-        byte[] bytes = BigInteger.valueOf(Long.parseLong(ip)).toByteArray();
         String result = null;
         try {
-            result = InetAddress.getByAddress(bytes).getHostAddress();
+            result = InetAddress.getByName(ip).getHostAddress();
         } catch (UnknownHostException e) {}
         return result;
     }
