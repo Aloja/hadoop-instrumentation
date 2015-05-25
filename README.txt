@@ -1,5 +1,7 @@
 QUICK START
 -----------
+Install vagrant (https://www.vagrantup.com/) and virtualbox (https://www.virtualbox.org/), clone this repo, go to the "vagrant" folder and run the command "vagrant up". This will create two virtual machines (one Hadoop master and one Hadoop slave). To access the machines, execute "vagrant ssh" (for the master) and "vagrant ssh slave-1" for the slave. Inside the machines, the repo is located in $HOME/workspace and is shared between both machines (all the changes are visible at the same time).
+
 The script make.sh calls a Makefile (accepts the same parameters: all, clean, ...) to compile Hadoop and all its dependencies. It will create three folders:
 
 - /hadoop-src: the original Hadoop source with the applied patches (located in /patch).
