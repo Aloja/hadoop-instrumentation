@@ -99,6 +99,15 @@ file { '/home/vagrant/.bash_aliases':
 }
 
 
+# Name resolution between nodes
+file { '/etc/hosts':
+    source  => '/vagrant/files/hosts',
+    owner => 'root',
+    group => 'root',
+    mode => 644,
+}
+
+
 # Configure passwordless SSH
 file { '/home/vagrant/.ssh/id_rsa':
     source  => '/vagrant/files/id_rsa',
