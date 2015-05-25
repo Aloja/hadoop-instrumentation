@@ -32,41 +32,51 @@ class prepare {
 
 # Better apt mirrors
 class { 'apt':
-    purge_sources_list   => true,
-    purge_sources_list_d => true,
+    purge => {
+        'sources.list' => true,
+        'sources.list.d' => true,
+    },
 }
 apt::source { 'ubuntu_trusty':
     location          => 'http://ftp.udc.es/ubuntu/',
     release           => 'trusty',
     repos             => 'main restricted universe',
-    include_deb       => true,
-    include_src       => false,
+    include           => {
+        'deb' => true,
+        'src' => true,
+    },
 }
 apt::source { 'ubuntu_trusty-updates':
     location          => 'http://ftp.udc.es/ubuntu/',
     release           => 'trusty-updates',
     repos             => 'main restricted universe',
-    include_deb       => true,
-    include_src       => false,
+    include           => {
+        'deb' => true,
+        'src' => true,
+    },
 }
 apt::source { 'ubuntu_trusty-security':
     location          => 'http://security.ubuntu.com/ubuntu',
     release           => 'trusty-security',
     repos             => 'main restricted universe',
-    include_deb       => true,
-    include_src       => false,
+    include           => {
+        'deb' => true,
+        'src' => true,
+    },
 }
 
 
 # Install various packages
-Apt::Source <| |> -> package { ['ant', 'build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'openjdk-7-jdk', 'screen', 'sysstat', 'unzip', 'vim']:
+package { ['ant', 'build-essential', 'binutils-dev', 'dh-autoreconf', 'git', 'less', 'libiberty-dev', 'libpcap-dev', 'libxml2-dev', 'openjdk-7-jdk', 'screen', 'sysstat', 'unzip', 'vim']:
     ensure => installed,
+    require => Class['apt'],
 }
 
 
 # Remove unnecessary packages
 package { ['landscape-client', 'landscape-common']:
     ensure => purged,
+    require => Class['apt'],
 }
 
 
