@@ -18,6 +18,16 @@ fi
 
 
 echo "##################################################"
+echo "### COPYING HADOOP CONFIG ########################"
+echo "##################################################"
+# Copy hadoop config to all nodes
+while read node
+do
+scp ${CONFIG_HADOOP}/* ${node}:${HADOOP_PREFIX}/conf/
+done < ${CONFIG_HADOOP}/slaves
+
+
+echo "##################################################"
 echo "### CHECKING SNIFFER #############################"
 echo "##################################################"
 # Try to change permission
@@ -39,16 +49,6 @@ Please execute as root:
     sudo setcap cap_net_raw=eip ${SNIFFER_BIN}"; \
 exit 1; }
 done < $HADOOP_PREFIX/conf/slaves
-
-echo "##################################################"
-echo "### COPYING HADOOP CONFIG ########################"
-echo "##################################################"
-# Copy hadoop config to all nodes
-while read node
-do
-scp ${CONFIG_HADOOP}/* ${node}:${HADOOP_PREFIX}/conf/
-done < ${CONFIG_HADOOP}/slaves
-
 
 echo "##################################################"
 echo "### CLEANING HADOOP CLUSTER ######################"
