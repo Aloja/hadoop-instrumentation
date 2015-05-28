@@ -35,3 +35,14 @@ TIPS
 If the generated trace is very big, the post-process.sh step might run out of memory. Open the script and change in the last line the value of "-Xmx1536m".
 
 When running in the minerva cluster, the sniffer binary needs special permissions. There is a command (sudo setcap_sniffer) that will set these special permissions to the file /scratch/hdd/jcugat/instrumentation/bin/sniffer (it has to be run in every node).
+
+
+ALOJA
+-----
+For some weird reason, the sniffer binary remembers the location of the libraries at compilation time, and ignores the LD_LIBRARY_PATH environment variable.
+
+Also tried statically compilling the sniffer so there is no need for external libraries (there is a branch with this work), but unfortunately the extrae events of the sniffer were not saved to the trace.
+
+The solution is to create the desired path (/scratch/local/aplic/instrumentation/) and modify the variable LOCAL_DIR inside vars-default.sh to point to this path, so that when executing in Aloja machines the path of the sniffer binary and libraries is the same.
+
+Also, the ubuntu versions are different (the instrumentation repo uses 14.04 and Aloja repo 12.04), so the binaries and libraries compiled in one might not work in the other. The best way is to compile all the binaries and libs (./make.sh extraewrapper) inside the Aloja vagrant (ubuntu 12.04) with the modified path.
