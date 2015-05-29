@@ -46,3 +46,8 @@ Also tried statically compilling the sniffer so there is no need for external li
 The solution is to create the desired path (/scratch/local/aplic/instrumentation/) and modify the variable LOCAL_DIR inside vars-default.sh to point to this path, so that when executing in Aloja machines the path of the sniffer binary and libraries is the same.
 
 Also, the ubuntu versions are different (the instrumentation repo uses 14.04 and Aloja repo 12.04), so the binaries and libraries compiled in one might not work in the other. The best way is to compile all the binaries and libs (./make.sh extraewrapper) inside the Aloja vagrant (ubuntu 12.04) with the modified path.
+
+
+KNOWN LIMITATIONS
+-----------------
+The master node of the Hadoop cluster has to run as a "slave" too (TaskTracker and Datanode processes). This is because at the init of the TaskTracker, the sniffer and other utils are launched, so there must be a TaskTracker in every node of the cluster.
